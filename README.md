@@ -28,10 +28,10 @@ $ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
 $ pip3 install -r requirements.txt
 
 # 直接打卡
-$ python3 Clock.py -a '你的学号' -p '学好密码'
+$ python3 Clock.py -a '你的学号' -p '学号密码'
 
 # 启用打卡消息通知
-$ python3 Clock.py -a '你的学号' -p '学好密码' -e '你的邮件'
+$ python3 Clock.py -a '你的学号' -p '学号密码' -e '你的邮件'
 ```
 
 ## 参数说明
@@ -44,13 +44,11 @@ $ python3 Clock.py -a '你的学号' -p '学好密码' -e '你的邮件'
 
 ##  如何开启邮件通知
 
-> 在这里给个教程 拿到授权码即可（默认是QQ）
+> - 在这里给个教程 拿到授权码即可（默认是QQ） https://www.cnblogs.com/kimsbo/p/10671851.html
 >
-> https://www.cnblogs.com/kimsbo/p/10671851.html
+> - 然后编辑`clock.py`找到`send_email` 和`auth_registered`分别填入你的邮箱和拿到的授权码
 >
-> 然后编辑`clock.py`找到`send_email` 和`auth_registered`分别填入你的邮箱和拿到的授权码
->
-> 搞定！！
+> - 搞定！！
 >
 > - 如果不是QQ邮箱，请到`Clock_info.py`的`send`的方法下更改对应的配置即可
 
@@ -69,3 +67,17 @@ $ python3 Clock.py -a '你的学号' -p '学好密码' -e '你的邮件'
    > 到该目录下将`Crypto`更改为`Crypyo` 即是大写
 
 2. 可以将以上命令打包为shell脚本，定时执行即可。
+
+   ```bash
+   #!/bin/bash
+   python3 Clock.py -a xxxx -p xxxxx -e xxx
+   ```
+
+   ```bash
+   # 授权
+   $ chmod +x ./script.sh
+   执行
+   $ ./script.sh
+   ```
+
+   
