@@ -1,0 +1,12 @@
+{
+  "manifest_version": 2,
+  "name": "want-hide-header",
+  "version": "0.1",
+  "content_scripts": [
+    {
+      "run_at": "document_start",
+      "matches": ["*://*/"],
+      "js": ["main.js"]
+    }
+  ]
+}
