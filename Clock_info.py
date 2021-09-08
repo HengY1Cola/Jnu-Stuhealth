@@ -143,15 +143,17 @@ def post_bag(one):
 
 
 # 发送邮件
-def send(subject, text, email):
+def send(subject, text, email, send_email, auth):
     """
+    :param auth: 授权码
+    :param send_email: 发件人邮件（于授权码匹配）
     :param subject: 邮件标题
     :param text: 邮件文本
     :param email: 邮箱
     :return:
     """
     Subject = subject
-    sender = '2911567026@qq.com'  # 发件人邮箱
+    sender = send_email  # 发件人邮箱
     receivers = email  # 收件人邮箱
     receivers = ','.join(receivers) if isinstance(receivers, list) else receivers
 
@@ -164,7 +166,7 @@ def send(subject, text, email):
 
     try:
         server = SMTP_SSL("smtp.qq.com", 465)
-        server.login(sender, "ivgovarvmzrldgdj")  # 授权码
+        server.login(sender, auth)  # 授权码
         server.sendmail(sender, message['To'].split(','), message.as_string())
         server.quit()
     except SMTPException as e:

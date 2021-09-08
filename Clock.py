@@ -6,7 +6,7 @@ import re
 from Clock_info import *
 
 print(banner)
-print('Source on GitHub: https://github.com/hengyi666/Exhausted-spider\nAuthor: Hengyi')
+print('Source on GitHub: https://github.com/hengyi666/JnuStuhealth-simple\nAuthor: Hengyi')
 parser = argparse.ArgumentParser(
     description='This is a tool for searching keywords to find specified urls'
 )
@@ -27,14 +27,15 @@ parser.add_argument(
 parser.add_argument(
     '-e',
     '--email',
-    required=True,
+    required=False,
     type=str,
     help='The result will inform you through the email'
 )
 args = parser.parse_args()
 
-if not re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', args.email):
-    raise Exception('Please Input Correct Email')
+if args.email:
+    if not re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', args.email):
+        raise Exception('Please Input Correct Email')
 
 header = {
     'Content-Type': 'application/json',
@@ -68,23 +69,30 @@ except Exception as ex:
     raise Exception('Failed to get JNUID')
 
 print('- Congratulations！ your account password is correct')
-print(f'- Have got the JnuId: {jnuid}')
+print(f'- Have got the JnuId！')
 
 bag = checkin(jnuid)
-print(f'- Have got the latest Bag')
+print(f'- Have got the latest Bag！')
 
 res = post_bag(bag)
 
 if res['code'] == 0:
     print(f'- Status：Success')
-    send('打卡成功', res['msg'], args.email)
 elif res['code'] == 1:
     print(f'- Status：Repeat')
-    send('重复打卡', res['msg'], args.email)
 else:
     print(f'- Status：Error')
-    send('打卡失败', '请联系作者：2911567026@qq.com', args.email)
 
-print(f'- Have send the Email to inform you')
+send_email = ''
+auth_registered = ""
+
+if send and auth_registered and args.email:
+    send('打卡成功', res['msg'], args.email, send_email, auth_registered)
+    print(f'- Have send the Email to inform you')
+    print(f'- Have a nice day!')
+else:
+    print(f'- Oh! You don not open email service.')
+    print(f'- You cloud visit github Readme to open it.')
+    print(f'- Have a nice day!')
 
 
