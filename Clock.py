@@ -94,5 +94,3 @@ else:
     print(f'- Oh! You don not open email service.')
     print(f'- You cloud visit github Readme to open it.')
     print(f'- Have a nice day!')
-
-
