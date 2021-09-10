@@ -1,6 +1,8 @@
 #  学生健康打卡（简单版）
 
-![恒毅](https://img.shields.io/badge/%E6%81%92%E6%AF%85-Hengyi-brightgreen)[![build](https://github.com/SO-JNU/stuhealth/workflows/build/badge.svg)](https://github.com/SO-JNU/stuhealth/actions)
+<img src="https://img.shields.io/badge/%E6%81%92%E6%AF%85-Hengyi-brightgreen" alt="" style=" float:left" />
+
+<img src="https://img.shields.io/badge/Version-0.0.1-orange" alt="" style=" float:left" />
 
 Python实现一键打卡
 
@@ -44,13 +46,11 @@ $ python3 Clock.py -a '你的学号' -p '学号密码' -e '你的邮件'
 
 ##  如何开启邮件通知
 
-> - 在这里给个教程 拿到授权码即可（默认是QQ） https://www.cnblogs.com/kimsbo/p/10671851.html
->
-> - 然后编辑`clock.py`找到`send_email` 和`auth_registered`分别填入你的邮箱和拿到的授权码
->
-> - 搞定！！
->
-> - 如果不是QQ邮箱，请到`Clock_info.py`的`send`的方法下更改对应的配置即可
+> 1. 在这里给个教程 拿到授权码即可（默认是QQ） https://www.cnblogs.com/kimsbo/p/10671851.html
+> 2. 然后编辑`clock.py`找到`send_email` 和`auth_registered`分别填入你的邮箱和拿到的授权码
+> 3. 如果不是QQ邮箱，请到`Clock_info.py`的`send`的方法下更改对应的配置即可
+
+![指导](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%88%AA%E5%9B%BE.png?raw=true)
 
 ##  注意事项
 
@@ -76,7 +76,7 @@ $ python3 Clock.py -a '你的学号' -p '学号密码' -e '你的邮件'
    ```bash
    # 授权
    $ chmod +x ./script.sh
-   执行
+   # 执行
    $ ./script.sh
    ```
 
