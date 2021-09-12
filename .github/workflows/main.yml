@@ -27,10 +27,6 @@ jobs:
       # 安装依赖库
       - name: Install dependencies 😊
         run: pip3 install -r requirements.txt
-      
-      # 执行打卡文件
-      - name: Clock In 🚀
-        run: pip3 uninstall pycryptodome;pip3 uninstall crypto;pip3 install pycrypto
         
       # 执行打卡文件
       - name: Clock In 🚀
