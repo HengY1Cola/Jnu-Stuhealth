@@ -1,7 +1,7 @@
 import argparse
 import base64
-from crypto.Cipher import AES
-from crypto.Util.Padding import pad
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
 import re
 from Clock_info import *
 
