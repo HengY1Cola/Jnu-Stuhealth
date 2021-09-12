@@ -23,7 +23,7 @@ jobs:
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: sudo ls /usr/lib/python3/dist-packages
+        run: sudo whereis crypto
       
       # 更新文件名字
       - name: Update folder names 🌟
