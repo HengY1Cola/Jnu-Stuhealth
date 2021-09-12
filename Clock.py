@@ -78,11 +78,11 @@ print(f'- Have got the latest Bag! ')
 res = post_bag(bag)
 
 if res['code'] == 0:
-    print(f'- Status：Success')
+    print(f'- Status: Success')
 elif res['code'] == 1:
-    print(f'- Status：Repeat')
+    print(f'- Status: Repeat')
 else:
-    print(f'- Status：Error')
+    print(f'- Status: Error')
 
 send_email = ''
 auth_registered = ""
