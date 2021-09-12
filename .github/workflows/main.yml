@@ -31,7 +31,7 @@ jobs:
       
       # 更新文件名字
       - name: Update folder names 🌟
-        run: python3 -c "import os; from distutils.sysconfig import get_python_lib; os.rename('/usr/lib/python3/dist-packages/cryptography', '/usr/lib/python3/dist-packages/Crypto'))"
+        run: python3 -c "import os; from distutils.sysconfig import get_python_lib; os.rename('/usr/lib/python3/dist-packages/cryptography', '/usr/lib/python3/dist-packages/Crypto')"
        
       # 执行打卡文件
       - name: Clock In 🚀
