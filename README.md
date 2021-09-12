@@ -4,7 +4,7 @@
 
 <img src="https://img.shields.io/badge/Version-0.0.1-orange" alt="" style=" float:left" />
 
-Python实现一键打卡
+Python实现一键打卡。
 
 首先说明该脚本并不会截取你的账号密码
 
