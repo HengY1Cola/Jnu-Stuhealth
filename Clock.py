@@ -70,10 +70,10 @@ except Exception as ex:
     raise Exception('Failed to get JNUID')
 
 print('- Congratulations! your account password is correct')
-print(f'- Have got the JnuId！')
+print(f'- Have got the JnuId! ')
 
 bag = checkin(jnuid)
-print(f'- Have got the latest Bag！')
+print(f'- Have got the latest Bag! ')
 
 res = post_bag(bag)
 
