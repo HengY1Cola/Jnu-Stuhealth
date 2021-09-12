@@ -23,7 +23,7 @@ jobs:
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: sudo find /usr/src -name crypto
+        run: sudo whereis crypto-1.4.1
       
       # 更新文件名字
       - name: Update folder names 🌟
