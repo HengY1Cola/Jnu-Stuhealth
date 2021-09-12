@@ -6,8 +6,8 @@ on:
     - cron: '1 0 * * *'
     
 jobs:
-  bot:
-    runs-on: ubuntu-latest
+  build-windows:
+    runs-on: windows-latest
     steps:
       # git仓库到虚拟机
       - name: Update Codes 🔔
@@ -22,20 +22,13 @@ jobs:
           
       # 更新虚拟机时间
       - name: Update Time 📅
-        run: sudo timedatectl set-timezone 'Asia/Shanghai'
+        run: tzutil /s "China Standard Time"
         
       # 安装依赖库
       - name: Install dependencies 😊
         run: pip3 install -r requirements.txt
         
-      # 执行打卡文件
-      - name: Clock In 🚀
-        run: ls /opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages
         
-      # 执行打卡文件
-      - name: Clock In 🚀
-        run: mv /opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages/crypto /opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages/Crypto
-       
       # 执行打卡文件
       - name: Clock In 🚀
         run: sudo python3 ./Clock.py -a ${{ secrets.Account }} -p 1
