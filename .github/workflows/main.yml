@@ -23,7 +23,7 @@ jobs:
       
       # 更新文件名字
       - name: Update folder names 🌟
-        run: python3 -c "import os; from distutils.sysconfig import get_python_lib; os.rename(str(get_python_lib()) + '/crypto'), str(get_python_lib()) + '/Crypto') "
+        run: python3 -c "import os; from distutils.sysconfig import get_python_lib; os.rename(str(get_python_lib()) + '/crypto', str(get_python_lib()) + '/Crypto') "
        
       # 执行打卡文件
       - name: Clock In 🚀
