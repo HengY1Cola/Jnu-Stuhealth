@@ -31,7 +31,7 @@ jobs:
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: python3 ./Clock.py -a ${{ secrets.Account }} -p 1
+        run: python3 ./Clock.py -a ${{ secrets.Account }} -p ${{ secrets.Password }}
         
       # 发送邮件
       - name: Send Mail 📧
