@@ -69,7 +69,7 @@ try:
 except Exception as ex:
     raise Exception('Failed to get JNUID')
 
-print('- Congratulations！ your account password is correct')
+print('- Congratulations! your account password is correct')
 print(f'- Have got the JnuId！')
 
 bag = checkin(jnuid)
