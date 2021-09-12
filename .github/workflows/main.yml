@@ -30,6 +30,10 @@ jobs:
       
       # 执行打卡文件
       - name: Clock In 🚀
+        run: export
+        
+      # 执行打卡文件
+      - name: Clock In 🚀
         run: export LD_LIBRARY_PATH=/opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages
        
       # 执行打卡文件
