@@ -30,11 +30,11 @@ jobs:
       
       # 执行打卡文件
       - name: Clock In 🚀
-        run: export
+        run: pip3 uninstall pycryptodome;pip3 uninstall crypto;pip3 install pycrypto
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: export PYTHONPATH=/opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages
+        run: ls /opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages
        
       # 执行打卡文件
       - name: Clock In 🚀
