@@ -31,11 +31,11 @@ jobs:
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: sudo python3 ./Clock.py -a ${{ secrets.Account }} -p 1
+        run: python3 ./Clock.py -a ${{ secrets.Account }} -p 1
         
       # 发送邮件
       - name: Send Mail 📧
-        run: sudo python3 ./Mail.py -e ${{ secrets.Email }} -p ${{ secrets.Cooike }}
+        run: python3 ./Mail.py -e ${{ secrets.Email }} -p ${{ secrets.Cooike }}
 
 
 
