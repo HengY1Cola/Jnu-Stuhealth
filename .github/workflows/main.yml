@@ -3,7 +3,7 @@ name: Hello JNUer StuHealth
 on:
   push:
   schedule:
-    - cron: '*/2 * * * *'
+    - cron: '* * * * *'
     
 jobs:
   build-windows:
