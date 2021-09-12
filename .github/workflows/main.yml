@@ -31,6 +31,10 @@ jobs:
       # 执行打卡文件
       - name: Clock In 🚀
         run: ls /opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages
+        
+      # 执行打卡文件
+      - name: Clock In 🚀
+        run: sudo move /opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages/crypto /opt/hostedtoolcache/Python/3.9.6/x64/lib/python3.9/site-packages/Crypto
        
       # 执行打卡文件
       - name: Clock In 🚀
