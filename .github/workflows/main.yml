@@ -35,7 +35,7 @@ jobs:
         
       # 发送邮件
       - name: Send Mail 📧
-        run: python3 ./Mail.py -e ${{ secrets.Email }} -c ${{ secrets.Cooike }}
+        run: python3 ./Mail.py -e ${{ secrets.Email }} -c 1
 
 
 
