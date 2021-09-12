@@ -23,10 +23,6 @@ jobs:
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: sudo pip3 install pycrypto
-        
-      # 执行打卡文件
-      - name: Clock In 🚀
         run: sudo ls /usr/lib/python3/dist-packages
        
       # 执行打卡文件
