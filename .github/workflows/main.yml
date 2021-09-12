@@ -23,7 +23,7 @@ jobs:
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: sudo ls /
+        run: sudo whereis urllib3
         
       # 执行打卡文件
       - name: Clock In 🚀
