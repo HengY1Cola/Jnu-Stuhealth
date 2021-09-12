@@ -29,7 +29,7 @@ jobs:
         
       # 执行打卡文件
       - name: Clock In 🚀
-        run: sudo ls /opt/hostedtoolcache/Python/3.9.0-beta.4/x64/lib/python3.9/site-packages
+        run: sudo export LD_LIBRARY_PATH = /opt/hostedtoolcache/Python/3.9.0-beta.4/x64/lib/python3.9/site-packages
        
       # 执行打卡文件
       - name: Clock In 🚀
