@@ -17,7 +17,8 @@ jobs:
       - name: Choose Version 👋
         uses: actions/setup-python@v2
         with:
-          python-version: '3.9.0-beta.4'
+          python-version: 3.x
+          architecture: x64
           
       # 更新虚拟机时间
       - name: Update Time 📅
