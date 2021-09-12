@@ -47,9 +47,9 @@ content = MIMEText(f'{data} 打卡成功')
 message.attach(content)
 
 try:
-    server = SMTP_SSL(args.email, 465)
-    server.login(sender, args.email)  # 授权码
+    server = SMTP_SSL("smtp.qq.com", 465)
+    server.login(sender, args.cookie)  # 授权码
     server.sendmail(sender, message['To'].split(','), message.as_string())
     server.quit()
 except SMTPException as e:
-    raise Exception('发送邮件失败')
+    raise Exception('发送邮件失败')
