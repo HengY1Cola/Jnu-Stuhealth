@@ -1,10 +1,6 @@
 #  学生健康打卡（简单版）
 
-<img src="https://img.shields.io/badge/%E6%81%92%E6%AF%85-Hengyi-brightgreen" alt="" style=" float:left" />
-
-<img src="https://img.shields.io/badge/Version-0.0.1-orange" alt="" style=" float:left" />
-
-[![build](https://github.com/SO-JNU/stuhealth/workflows/build/badge.svg)](https://github.com/SO-JNU/stuhealth/actions)
+[![build](https://github.com/SO-JNU/stuhealth/workflows/build/badge.svg)](https://github.com/SO-JNU/stuhealth/actions)![](https://img.shields.io/badge/Version-0.0.2-orange)
 
 Python实现一键打卡。
 
@@ -34,6 +30,27 @@ $ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
 >
 > ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%96%B0%E6%95%99%E7%A8%8B2.png)
 
+##  如何开启邮件通知(申请授权码)
+
+> 1. 在这里给个教程 拿到授权码即可（默认是QQ） https://www.cnblogs.com/kimsbo/p/10671851.html
+>
+> 2. 如果是工作流打卡:
+>
+>    > 直接到`Secrets`设置对应的`Cookie`即可。
+>
+> 3. 如果是本地部署:
+>
+>    > 编辑`clock.py`找到`send_email` 和`auth_registered`分别填入你的邮箱和拿到的授权码(分别是在`86` 和 `87`行)
+>
+> 4. 如果不是QQ邮箱:
+>
+>    1. 如果是工作流：更改对应的`Service`即可
+>    2. 如果是本地部署：请到`Clock_info.py`的`send`的方法下更改对应的配置即可。
+
+![指导](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%88%AA%E5%9B%BE.png?raw=true)
+
+##  
+
 ##  本地使用
 
 ```bash
@@ -54,14 +71,6 @@ $ python3 Clock.py -a '你的学号' -p '学号密码' -e '你的邮件'
 | `--account`  | `-a` | 学号         |
 | `--password` | `-p` | 密码         |
 | `--email`    | `-e` | 通知邮件地址 |
-
-##  如何开启邮件通知
-
-> 1. 在这里给个教程 拿到授权码即可（默认是QQ） https://www.cnblogs.com/kimsbo/p/10671851.html
-> 2. 然后编辑`clock.py`找到`send_email` 和`auth_registered`分别填入你的邮箱和拿到的授权码
-> 3. 如果不是QQ邮箱，请到`Clock_info.py`的`send`的方法下更改对应的配置即可
-
-![指导](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%88%AA%E5%9B%BE.png?raw=true)
 
 ##  注意事项
 
