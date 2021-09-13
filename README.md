@@ -75,7 +75,7 @@ $ python3 Clock.py -a '你的学号' -p '学号密码' -e '你的邮件'
    > python3 -c "from distutils.sysconfig import get_python_lib;print(get_python_lib())"
    > ```
    >
-   > 到该目录下将`Crypto`更改为`Crypyo` 即是大写
+   > 到该目录下将`crypto`更改为`Crypto` 即是大写
 
 2. 可以将以上命令打包为shell脚本，定时执行即可。
 
