@@ -32,7 +32,7 @@ $ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
 >
 > ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%95%99%E7%A8%8B1.png)
 >
-> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%95%99%E7%A8%8B2.png)
+> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%96%B0%E6%95%99%E7%A8%8B2.png)
 
 ##  本地使用
 
