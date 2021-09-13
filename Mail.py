@@ -31,6 +31,7 @@ parser.add_argument(
     help='Choose Your Service'
 ) 
 args = parser.parse_args()
+args.service = "smtp.qq.com" if args.service == '' else args.service
 
 data = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 

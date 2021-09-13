@@ -4,11 +4,11 @@
 
 <img src="https://img.shields.io/badge/Version-0.0.1-orange" alt="" style=" float:left" />
 
+[![build](https://github.com/SO-JNU/stuhealth/workflows/build/badge.svg)](https://github.com/SO-JNU/stuhealth/actions)
+
 Python实现一键打卡。
 
 首先说明该脚本并不会截取你的账号密码
-
-全部在本地实现
 
 > 在此感谢宸哥支持
 >
@@ -23,7 +23,18 @@ Python实现一键打卡。
 $ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
 ```
 
-##  如何使用
+##  工作流部署(推荐)
+
+> 根据以下操作，您将在github上每天自动打卡，并不需要其他任何配置
+>
+> 1. 点击`Fork` 将本仓库拉取到自己那里
+> 2. 点击`setting`后设置`Secrets`
+>
+> ![]()
+>
+> ![]()
+
+##  本地使用
 
 ```bash
 # 首次使用需要安装依赖

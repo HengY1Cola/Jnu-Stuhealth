@@ -1,6 +1,5 @@
 import argparse
 import base64
-import requests
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 import re
