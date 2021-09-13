@@ -30,9 +30,9 @@ $ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
 > 1. 点击`Fork` 将本仓库拉取到自己那里
 > 2. 点击`setting`后设置`Secrets`
 >
-> ![]()
+> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%95%99%E7%A8%8B1.png)
 >
-> ![]()
+> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%95%99%E7%A8%8B2.png)
 
 ##  本地使用
 
