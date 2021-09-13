@@ -30,9 +30,9 @@ $ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
 > 1. 点击`Fork` 将本仓库拉取到自己那里
 > 2. 点击`setting`后设置`Secrets`
 >
-> ![]()
+> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%95%99%E7%A8%8B1.png)
 >
-> ![]()
+> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%95%99%E7%A8%8B2.png)
 
 ##  本地使用
 
@@ -75,7 +75,7 @@ $ python3 Clock.py -a '你的学号' -p '学号密码' -e '你的邮件'
    > python3 -c "from distutils.sysconfig import get_python_lib;print(get_python_lib())"
    > ```
    >
-   > 到该目录下将`Crypto`更改为`Crypyo` 即是大写
+   > 到该目录下将`crypto`更改为`Crypto` 即是大写
 
 2. 可以将以上命令打包为shell脚本，定时执行即可。
 
