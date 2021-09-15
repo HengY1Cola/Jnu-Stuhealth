@@ -1,6 +1,12 @@
-#  学生健康打卡（简单版）
+#  ~~学生健康打卡（简单版）~~
 
 [![build](https://github.com/SO-JNU/stuhealth/workflows/build/badge.svg)](https://github.com/SO-JNU/stuhealth/actions)![](https://img.shields.io/badge/Version-0.0.2-orange)
+
+> 该项目暂时作废
+>
+> 学校在一周多的时间内两次部署加密
+>
+> 等有时间再来弄
 
 Python实现一键打卡。
 
