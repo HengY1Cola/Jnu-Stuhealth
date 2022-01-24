@@ -7,6 +7,46 @@ import requests
 import time
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+import base64
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+
+
+# 获得JnuId
+def getJnuId(eachInfo, validateToken):
+    header = {
+        'Content-Type': 'application/json',
+        'X-Forwarded-For': '.'.join(str(random.randint(0, 255)) for x in range(4)),
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko',
+    }
+
+    s = requests.Session()
+    s.mount(
+        'https://',
+        HTTPAdapter(
+            max_retries=Retry(
+                total=3,
+                backoff_factor=0,
+                status_forcelist=[400, 405, 500, 501, 502, 503, 504]
+            )
+        )
+    )
+    key = b'xAt9Ye&SouxCJziN'
+    cipher = AES.new(key, AES.MODE_CBC, key)
+    try:
+        jnuId = s.post(
+            'https://stuhealth.jnu.edu.cn/api/user/login',
+            json.dumps({
+                'username': eachInfo['account'],
+                'password': base64.b64encode(cipher.encrypt(pad(eachInfo['password'].encode(), 16))).decode(),
+                'validate': validateToken
+            }),
+            headers=header
+        ).json()['data']['jnuid']
+        return jnuId
+    except Exception as e:
+        print(e)
+        return ''
 
 
 #  创建头部
@@ -170,13 +210,5 @@ def send(subject, text, email, send_email, auth):
         server.sendmail(sender, message['To'].split(','), message.as_string())
         server.quit()
     except SMTPException as e:
-        send(subject, f"发送邮件失败, {e}", email)
-
-
-banner = '''
-     _             ____  _         _   _            _ _   _     
-    | |_ __  _   _/ ___|| |_ _   _| | | | ___  __ _| | |_| |__  
- _  | | '_ \| | | \___ \| __| | | | |_| |/ _ \/ _` | | __| '_ \ 
-| |_| | | | | |_| |___) | |_| |_| |  _  |  __/ (_| | | |_| | | |
- \___/|_| |_|\__,_|____/ \__|\__,_|_| |_|\___|\__,_|_|\__|_| |_|
-'''
+        print("发送邮件失败", e)
+        pass

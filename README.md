@@ -1,109 +1,90 @@
-#  ~~学生健康打卡（简单版）~~
+#  学生健康打卡（简单版）
 
-[![build](https://github.com/SO-JNU/stuhealth/workflows/build/badge.svg)](https://github.com/SO-JNU/stuhealth/actions)![](https://img.shields.io/badge/Version-0.0.2-orange)
+<img src='https://img.shields.io/badge/Version-0.0.3-orange' style='float:left; width:100px'/>
 
-> 该项目暂时作废
->
-> 学校在一周多的时间内两次部署加密
->
-> 等有时间再来弄
+`JnuStuHealth  `模拟滑块实现打卡项目
 
-Python实现一键打卡。
+本项目实现自动打卡建议自备一台**连续不断运行**的服务器，该项目是在**ubuntu**上面实现的。
 
-首先说明该脚本并不会截取你的账号密码
+本项目的设想是必须**开通邮件通**知，因为上去检查下今天打卡没与设计概念背道而驰
 
-> 在此感谢宸哥支持
->
-> 需要完整版请到：
->
-> https://github.com/SO-JNU/stuhealth
+##  完整版本
+
+最难的地方是破解滑动模块拿到验证`Validata`
+
+在此特别鸣谢小透明的API版本：https://github.com/SO-JNU/stuhealth-validate-server
+
+通过👆版本，你可以在服务器搭建起一台不断运行的服务且可以提供给他人使用
+
+但是打卡一般一天只进行一次，所以我完成了简单版本，且附上了注释。
 
 ##  快速部署
 
+> 特别注意⚠️：
+>
+> selenium中的谷歌版本存在BUG即chromedriver的无头版本会报错❌
+>
+> `window。initNECaptcha`会说找不到的问题，但是**火狐**是没问题的。
+
+授权码的获取简单给个链接🔗： https://www.cnblogs.com/kimsbo/p/10671851.html
+
 ```bash
+# 以 root 身份下
 # git下载
 $ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
+
+# 进入工作目录配置文件
+$ vim ./utils.py # 设置通知邮箱📮以及授权码
+
+# 安装依赖
+$ pip install -r requirements.txt
+
+# 如果遇到了安装pycrypto报错（没有直接跳到下一步）
+$ pip uninstall pycrypto
+$ pip install pycryptodome
+
+# 安装了firefox
+$ apt update && apt upgrade # 更新包 
+$ apt install firefox
+
+# 安装geckodriver https://github.com/mozilla/geckodriver/releases
+$ wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
+$ tar -zxvf ./geckodriverxxx  # 解压下来
+$ cp ./geckodriver /usr/bin/geckodriver  # 丢到环境中去必要赋予权限
+
+# 写入 账号 密码 邮箱 备注
+$ vim dayClock.txt
+
+# 运行
+$ python app.py
 ```
 
-##  工作流部署(推荐)
+## 文件结构
 
-> 根据以下操作，您将在github上每天自动打卡，并不需要其他任何配置
->
-> 1. 点击`Fork` 将本仓库拉取到自己那里
-> 2. 点击`setting`后设置`Secrets`
->
-> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%95%99%E7%A8%8B1.png)
->
-> ![](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%96%B0%E6%95%99%E7%A8%8B2.png)
+```
+├── app.py  # 入口运行文件
+├── bgImg # 背景图片
+│
+├── dayClock.txt  # 保存打卡账号密码文件
+├── handlePackage.py # 处理发包
+├── handleValidate.py # 处理验证码
+│
+├── log  # 输出日志
+│   
+├── requirements.txt # 依赖文件
+└── utils.py  # 仓库
+```
 
-##  如何开启邮件通知(申请授权码)
-
-> 1. 在这里给个教程 拿到授权码即可（默认是QQ） https://www.cnblogs.com/kimsbo/p/10671851.html
->
-> 2. 如果是工作流打卡:
->
->    > 直接到`Secrets`设置对应的`Cookie`即可。
->
-> 3. 如果是本地部署:
->
->    > 编辑`clock.py`找到`send_email` 和`auth_registered`分别填入你的邮箱和拿到的授权码(分别是在`86` 和 `87`行)
->
-> 4. 如果不是QQ邮箱:
->
->    1. 如果是工作流：更改对应的`Service`即可
->    2. 如果是本地部署：请到`Clock_info.py`的`send`的方法下更改对应的配置即可。
-
-![指导](https://github.com/hengyi666/JnuStuhealth-simple/blob/main/%E6%88%AA%E5%9B%BE.png?raw=true)
-
-##  
-
-##  本地使用
+##  定时开启任务
 
 ```bash
-# 首次使用需要安装依赖
-$ pip3 install -r requirements.txt
-
-# 直接打卡
-$ python3 Clock.py -a '你的学号' -p '学号密码'
-
-# 启用打卡消息通知
-$ python3 Clock.py -a '你的学号' -p '学号密码' -e '你的邮件'
+# 开启定时
+# 参考链接 https://blog.csdn.net/longgeaisisi/article/details/90477975
+$ sudo apt-get install cron
+$ crontab -l # 是否安装以及已有任务
+$ service cron start # 开启cron
+$ crontab -e # 选择3
+# 将  0 0 8 * * /usr/bin/python /home/ubuntu/clock/app.py  写入注意修改路径
+$ service crond restart
+# 建议将app文件中的记录日志的路径写为绝对的
 ```
-
-## 参数说明
-
-| 参数         | 简写 | 说明         |
-| ------------ | ---- | :----------- |
-| `--account`  | `-a` | 学号         |
-| `--password` | `-p` | 密码         |
-| `--email`    | `-e` | 通知邮件地址 |
-
-##  注意事项
-
-1. 如果任然报错为某个模块没有找到，请收到安装该模块！
-
-   > 特别的：
-   >
-   > 当报错为Crypto不存在时，请在终端输入：
-   >
-   > ```
-   > python3 -c "from distutils.sysconfig import get_python_lib;print(get_python_lib())"
-   > ```
-   >
-   > 到该目录下将`crypto`更改为`Crypto` 即是大写
-
-2. 可以将以上命令打包为shell脚本，定时执行即可。
-
-   ```bash
-   #!/bin/bash
-   python3 Clock.py -a xxxx -p xxxxx -e xxx
-   ```
-
-   ```bash
-   # 授权
-   $ chmod +x ./script.sh
-   # 执行
-   $ ./script.sh
-   ```
-
-   
