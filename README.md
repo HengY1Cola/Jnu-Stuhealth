@@ -84,7 +84,7 @@ $ sudo apt-get install cron
 $ crontab -l # 是否安装以及已有任务
 $ service cron start # 开启cron
 $ crontab -e # 选择3
-# 将  0 0 8 * * /usr/bin/python /home/ubuntu/clock/app.py  写入注意修改路径
+# 将  1 0 * * * /usr/bin/python /home/ubuntu/clock/app.py  写入注意修改路径
 $ service crond restart
 # 建议将app文件中的记录日志的路径写为绝对的
 ```
