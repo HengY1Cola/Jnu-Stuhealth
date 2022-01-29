@@ -18,6 +18,10 @@
 
 但是打卡一般一天只进行一次，所以我完成了简单版本，且附上了注释。
 
+👇下面是过滑动验证效果图：
+
+<img src="https://dailypic.hengyimonster.top/typora/aim.gif" style="zoom:66%;float:left" />
+
 ##  快速部署 🚀
 
 > 特别注意⚠️：
