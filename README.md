@@ -30,7 +30,7 @@
 >
 > selenium中的谷歌版本存在BUG即chromedriver的无头版本会报错❌
 >
-> `window。initNECaptcha`会说找不到的问题，但是**火狐**是没问题的。
+> `window.initNECaptcha`会说找不到的问题，但是**火狐**是没问题的。
 
 授权码的获取简单给个链接🔗： https://www.cnblogs.com/kimsbo/p/10671851.html
 
