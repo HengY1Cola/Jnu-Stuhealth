@@ -1,12 +1,14 @@
 import re
+import threading
 from handlePackage import *
-from utils import *
 from handleValidate import prepareToken
+from utils import *
 
 # todo 入口
 print(banner)
 print('Source on GitHub: https://github.com/hengyi666/JnuStuhealth-simple\nAuthor: Hengyi')
-makePrint2File(path=os.path.join(CURRENT_PATH, 'log'))
+path = ''
+makePrint2File(path=path)
 
 # todo 分析文本
 txtPath = os.path.join(CURRENT_PATH, 'dayClock.txt')
@@ -26,50 +28,36 @@ if len(handleList) == 0:
     raise Exception('无打卡信息')
 print("- 处理完共 {} 打卡信息".format(len(handleList)))
 
-# todo 处理Tokens
-print("- 即将开启浏览器准备获取ValidateToken")
-Tokens = prepareToken(handleList)
-if len(Tokens) != len(handleList):
-    # 发邮件：模拟验证码拿不到
-    send("打卡任务失败", '获取到 {} 个Token,与 {} 个不匹配'.format(len(Tokens), len(handleList)),
-         SEND_EMAIL, SEND_EMAIL, AUTH_REGISTERED)
-    raise Exception(f'获取到 {len(Tokens)} 个Token,与 {len(handleList)} 个不匹配')
-print("- 滑动模块的Token数准备完毕")
+# todo 生产Token
+producer = threading.Thread(target=prepareToken, args=(handleList,))
+producer.start()
 
-# todo 获得对应的JnuId
-JnuIdList = []
+# todo 开始消费拿到每位的JnuId并打卡
 for x in range(len(handleList)):
-    res = getJnuId(handleList[x], Tokens[x])
-    if res == '':
-        # 发邮件: jnu拿不到了
-        send("打卡任务失败", '获取不到JnuId, 可能密码错误，或者脚本失效', SEND_EMAIL, SEND_EMAIL, AUTH_REGISTERED)
-        raise Exception('获取不到JnuId, 可能密码错误，或者脚本失效')
-    JnuIdList.append(res)
-
-# todo 准备开始打卡
-print('- 恭喜完整准备工作，准备发包打卡')
-success, error, repeat = [], [], []
-for index, each in enumerate(JnuIdList):
-    bag = checkin(each)
-    print('- 拿到了第 {} 人的昨日数据'.format(index + 1))
-    res = post_bag(bag)
-    if res['code'] == 0:
-        success.append(handleList[index]['email'])
-        print('- 第 {} 人打卡成功'.format(index + 1))
-    elif res['code'] == 1:
-        repeat.append(handleList[index]['email'])
-        print('- 第 {} 人重复打卡'.format(index + 1))
-    else:
-        error.append(handleList[index]['email'])
-        print('- 第 {} 人打卡错误'.format(index + 1))
+    time.sleep(0.5)
+    t = threading.Thread(target=threadModel, args=(handleList[x],))
+    t.start()
 
 # todo 打卡处理完成 准备邮件通知
-today = datetime.date.today()
-if len(success) != 0:
-    send("打卡成功", f'{str(today)} 打卡成功', success, SEND_EMAIL, AUTH_REGISTERED)
-if len(repeat) != 0:
-    send("打卡重复", f'{str(today)} 打卡重复', repeat, SEND_EMAIL, AUTH_REGISTERED)
-if len(error) != 0:
-    send("打卡失败", f'{str(today)} 打卡失败', error, SEND_EMAIL, AUTH_REGISTERED)
-send("打卡任务完成", f'{str(today)} 打卡任务完成 成功：{str(success)}, 失败：{str(error)}, 重复：{str(repeat)}',
-     SEND_EMAIL, SEND_EMAIL, AUTH_REGISTERED)
+time_start = time.time()
+while True:
+    now = time.time()
+    if now - time_start >= (len(handleList) + 1) * 30:
+        print("- 超时")
+        break
+    if TOTAL_QUEUE.qsize() == len(handleList):
+        today = datetime.date.today()
+        print(f'- 共用时 {int(now - time_start)} 秒')
+        if len(SUCCESS) != 0:
+            send("打卡成功", f'{str(today)} 打卡成功', SUCCESS, SEND_EMAIL, AUTH_REGISTERED)
+            print(f'{str(SUCCESS)} 打卡通知成功')
+        if len(REPEAT) != 0:
+            print(f'{str(REPEAT)} 重复打卡')
+        if len(ERROR) != 0:
+            send("打卡失败", f'{str(today)} 打卡失败', ERROR, SEND_EMAIL, AUTH_REGISTERED)
+            print(f'{str(ERROR)} 打卡通知成功')
+        send("打卡任务完成", f'{str(today)} 打卡任务完成 成功：{str(SUCCESS)}, 失败：{str(ERROR)}, 重复：{str(REPEAT)}',
+             SEND_EMAIL, SEND_EMAIL, AUTH_REGISTERED)
+        print('- 打卡任务完成')
+        break
+print("- 主线程结束")

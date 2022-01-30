@@ -9,13 +9,14 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from utils import *
 
-
 # 已知图片的Hash方便与即将填补的图片的hash进行比对
 IMG_BG_With_HASH = tuple(
     (i, getImageHash(i)) for i in (Image.open(f'{BG_IMG_PATH}/{j}') for j in os.listdir(BG_IMG_PATH)))
 
 options = webdriver.FirefoxOptions()
-options.headless = True
+options.add_argument("--headless")  # 设置火狐为headless无界面模式
+options.add_argument("--disable-gpu")
+options.add_argument("--no-sandbox")
 BROWSER = webdriver.Firefox(options=options)
 
 
@@ -92,27 +93,22 @@ def getValidateToken():
 
 
 def prepareToken(PunchList):
-    Tokens = []  # 直接放到内存中
+    print("- 即将开启浏览器准备获取ValidateToken")
     BROWSER.get('https://stuhealth.jnu.edu.cn/')
-    reTryTimes = 0
-    while len(Tokens) != len(PunchList):
+    reTryTimes, total = 0, 0
+    while total != len(PunchList):
         if reTryTimes >= len(PunchList) + 3:
             break
         reTryTimes += 1
         try:
-            length = len(Tokens) + 1
-            print('- 正在获取第 {} 条 ValidateToken'.format(length))
+            print('- 正在获取第 {} 条 ValidateToken'.format(total + 1))
             time.sleep(random.randint(5, 10))
             oneValidate = getValidateToken()
-            Tokens.append(oneValidate)
+            TOKEN_QUEUE.put(oneValidate)
+            total += 1
             BROWSER.refresh()
         except Exception:
             continue
     BROWSER.quit()
-    return Tokens
-
-
-if __name__ == '__main__':
-    oneList = [1, 2, 3]
-    res = prepareToken(oneList)
-    print(len(res))
+    print("- 浏览器线程退出")
+    return True

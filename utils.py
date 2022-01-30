@@ -5,11 +5,14 @@ import datetime
 from PIL import Image
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
+import queue
 
-SEND_EMAIL = ''  # 设置邮箱
-AUTH_REGISTERED = "" # 设置申请的权限码
+SEND_EMAIL = ''
+AUTH_REGISTERED = ""
 CURRENT_PATH = os.path.dirname(__file__)
 BG_IMG_PATH = os.path.join(CURRENT_PATH, 'bgImg')
+TOKEN_QUEUE, TOTAL_QUEUE = queue.Queue(0), queue.Queue(0)
+SUCCESS, REPEAT, ERROR = [], [], []
 banner = '''
      _             ____  _         _   _            _ _   _     
     | |_ __  _   _/ ___|| |_ _   _| | | | ___  __ _| | |_| |__  

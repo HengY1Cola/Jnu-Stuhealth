@@ -10,6 +10,7 @@ from requests.packages.urllib3.util.retry import Retry
 import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
+from utils import TOKEN_QUEUE, SUCCESS, ERROR, REPEAT, TOTAL_QUEUE
 
 
 # 获得JnuId
@@ -33,12 +34,14 @@ def getJnuId(eachInfo, validateToken):
     )
     key = b'xAt9Ye&SouxCJziN'
     cipher = AES.new(key, AES.MODE_CBC, key)
+    password = base64.b64encode(cipher.encrypt(pad(eachInfo['password'].encode(), 16))).decode()
+    password = password.replace('+', '-', 1).replace('/', '_', 1).replace('=', '*', 1)
     try:
         jnuId = s.post(
             'https://stuhealth.jnu.edu.cn/api/user/login',
             json.dumps({
                 'username': eachInfo['account'],
-                'password': base64.b64encode(cipher.encrypt(pad(eachInfo['password'].encode(), 16))).decode(),
+                'password': password,
                 'validate': validateToken
             }),
             headers=header
@@ -212,3 +215,28 @@ def send(subject, text, email, send_email, auth):
     except SMTPException as e:
         print("发送邮件失败", e)
         pass
+
+
+# 多线程模式
+def threadModel(eachInfo):
+    print(f'- {eachInfo["account"]} 开启了线程')
+    oneToken = TOKEN_QUEUE.get()
+    resJnuId = getJnuId(eachInfo, oneToken)
+    TOTAL_QUEUE.put("done")
+    if resJnuId != '':
+        bag = checkin(resJnuId)
+        res = post_bag(bag)
+        if res['code'] == 0:
+            SUCCESS.append(eachInfo['email'])
+            print('- {} 打卡成功'.format(eachInfo["account"]))
+        elif res['code'] == 1:
+            REPEAT.append(eachInfo['email'])
+            print('- {} 重复打卡'.format(eachInfo["account"]))
+        else:
+            ERROR.append(eachInfo['email'])
+            print('- {} 打卡错误'.format(eachInfo["account"]))
+    else:
+        ERROR.append(eachInfo['email'])
+        print('- {} 打卡错误'.format(eachInfo["account"]))
+    print(f'- {eachInfo["account"]} 结束了线程')
+    return True

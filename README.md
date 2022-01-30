@@ -1,12 +1,14 @@
 #  学生健康打卡（简单版）
 
-<img src='https://img.shields.io/badge/Version-0.0.3-orange' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-0.0.4-orange' style='float:left; width:100px'/>
 
 `JnuStuHealth  `模拟滑块实现打卡项目
 
 本项目实现自动打卡建议自备一台**连续不断运行**的服务器，该项目是在**ubuntu**上面实现的。
 
 本项目的设想是必须**开通邮件通**知，因为上去检查下今天打卡没与设计概念**背道而驰**
+
+因为验证码具有短暂的时效性，后改用了**生产者与消费者**模式，**即产即消**！
 
 ##  完整版本 😊
 
@@ -57,7 +59,11 @@ $ tar -zxvf ./geckodriverxxx  # 解压下来
 $ cp ./geckodriver /usr/bin/geckodriver  # 丢到环境中去必要赋予权限
 
 # 写入 账号 密码 邮箱 备注
+# 写入邮箱与授权码
+# 写入日志记录路径
 $ vim dayClock.txt
+$ vim utils.py # SEND_EMAIL AUTH_REGISTERED
+$ vim app.py # path
 
 # 运行
 $ python app.py
