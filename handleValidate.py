@@ -108,7 +108,7 @@ def prepareToken(PunchList):
             total += 1
             BROWSER.refresh()
         except Exception as e:
-            printAndLog(e)
+            printAndLogError("prepareToken", e)
             continue
     BROWSER.quit()
     printAndLog("- 浏览器线程退出")

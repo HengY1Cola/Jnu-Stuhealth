@@ -6,7 +6,7 @@ from utils import *
 
 # todo 入口
 print(banner)
-print('Source on GitHub: https://github.com/hengyi666/JnuStuhealth-simple\nAuthor: Hengyi')
+print('Source on GitHub: https://github.com/HengY1Sky/Jnu-Stuhealth-Simple\nAuthor: Hengyi')
 
 # todo 分析文本
 txtPath = os.path.join(CURRENT_PATH, 'dayClock.txt')
@@ -41,7 +41,7 @@ time_start = time.time()
 while True:
     now = time.time()
     if now - time_start >= (len(handleList) + 1) * 30:
-        printAndLog("- 超时")
+        printAndLogError("app", "- 超时")
         break
     if TOTAL_QUEUE.qsize() == len(handleList):
         today = date.today()

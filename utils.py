@@ -101,8 +101,14 @@ def untilFindElement(by: By, value: str):
 
 #  打印并写入日志
 def printAndLog(strInfo):
-    print(strInfo)
+    print("- " + strInfo)
     logging.info(strInfo)
+
+
+#  打印并写入日志
+def printAndLogError(funcName, error):
+    print(f"[X] {funcName} account error: {error}")
+    logging.warning(error)
 
 
 # 发送邮件

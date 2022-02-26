@@ -11,7 +11,7 @@ Pillow==9.0.0
 pycparser==2.21
 pycryptodome==3.11.0
 pyOpenSSL==21.0.0
-requests==2.27.1
+requests==2.27.0
 selenium==4.1.0
 six==1.16.0
 sniffio==1.2.0

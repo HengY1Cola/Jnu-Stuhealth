@@ -104,6 +104,16 @@ $ service cron restart
 ##  更新日志
 
 <details>
+<summary>20220226</summary>
+<h3>重构发包与修改日志记录</h3>
+当初年少不懂事，写的代码自尝苦果，写的不好自己现在重新写下。
+新版发出，敬请谅解，多多指教～
+
+- 重构发包
+- 修改日志记录
+</details>
+
+<details>
 <summary>20220225</summary>
 <h3>修改方式以及优化部分代码</h3>
 
