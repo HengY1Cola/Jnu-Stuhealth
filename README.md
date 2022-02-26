@@ -37,10 +37,8 @@
 ```bash
 # 以 root 身份下
 # git下载
-$ git clone https://github.com/hengyi666/JnuStuhealth-simple.git
-
-# 进入工作目录配置文件
-$ vim ./utils.py # 设置通知邮箱📮以及授权码
+$ git clone https://github.com/hengyi666/JnuStuhealth-simple.git clock
+$ cd clock
 
 # 安装依赖
 $ pip install -r requirements.txt
@@ -53,11 +51,12 @@ $ apt install firefox
 $ wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
 $ tar -zxvf ./geckodriverxxx  # 解压下来
 $ cp ./geckodriver /usr/bin/geckodriver  # 丢到环境中去必要赋予权限
+$ chmod 755 /usr/bin/geckodriver
 
 # 写入 账号 密码 邮箱 备注
 # 写入邮箱与授权码
 $ vim dayClock.txt
-$ vim utils.py # SEND_EMAIL AUTH_REGISTERED
+$ vim utils.py # SEND_EMAIL AUTH_REGISTERED 设置通知邮箱📮以及授权码
 
 # 运行
 $ python app.py
@@ -106,6 +105,7 @@ $ service cron restart
 <details>
 <summary>20220226</summary>
 <h3>重构发包与修改日志记录</h3>
+  
 当初年少不懂事，写的代码自尝苦果，写的不好自己现在重新写下。
 新版发出，敬请谅解，多多指教～
 
