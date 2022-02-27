@@ -35,9 +35,8 @@
 授权码的获取简单给个链接🔗： https://www.cnblogs.com/kimsbo/p/10671851.html
 
 ```bash
-# 以 root 身份下
 # git下载
-$ git clone https://github.com/hengyi666/JnuStuhealth-simple.git clock
+$ sudo git clone https://github.com/hengyi666/JnuStuhealth-simple.git clock
 $ cd clock
 
 # 安装依赖
@@ -57,6 +56,10 @@ $ chmod 755 /usr/bin/geckodriver
 # 写入邮箱与授权码
 $ vim dayClock.txt
 $ vim utils.py # SEND_EMAIL AUTH_REGISTERED 设置通知邮箱📮以及授权码
+
+# 为了corntab找到路径
+$ cp -r ./hideHeader /home/ubuntu
+$ chmod -R 777 /home/ubuntu/hideHeader
 
 # 运行
 $ python app.py
@@ -101,6 +104,15 @@ $ service cron restart
 > 其他问题请[谷歌](https://www.google.com.hk/)解决～ 代码问题请提交PR或者开Issue
 
 ##  更新日志
+
+最新描述：**紧急修复Crontab问题**
+
+<details>
+<summary>20220227</summary>
+<h3>紧急修复Crontab问题</h3>
+  
+加入拓展之后并在Crontab下执行会路径发生问题，经过我的排查在当前文件夹下使用 `cp -r ./hideHeader /home/ubuntu`并赋予执行权限 `chmod -R 777 /home/ubuntu/hideHeader`即可。至于路径不统一，查看[我的博客](https://hengy1.top/article/2c7b2295.html)简单配置即可找到问题所在。
+</details>
 
 <details>
 <summary>20220226</summary>
