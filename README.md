@@ -115,7 +115,6 @@ $ service cron restart
 现在已经加上且附带35.5-36.5的随机体温
 </details>
 
-<details>
 
 <details>
 <summary>20220227</summary>
