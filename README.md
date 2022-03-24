@@ -105,7 +105,17 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**紧急修复Crontab问题**
+最新描述：**添加表格参数**
+
+<details>
+<summary>20220325</summary>
+<h3>添加表格参数</h3>
+  
+新的表格出现了早/中/晚的昨日测量数据
+现在已经加上且附带35.5-36.5的随机体温
+</details>
+
+<details>
 
 <details>
 <summary>20220227</summary>

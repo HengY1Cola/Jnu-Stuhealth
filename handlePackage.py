@@ -2,6 +2,7 @@ import json
 import random
 import requests
 import time
+from datetime import date, timedelta
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import base64
@@ -18,6 +19,16 @@ def buildHeader():
         'X-Forwarded-For': '.'.join(str(random.randint(0, 255)) for x in range(4)),
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko',
     }
+
+
+#  获取随机体温
+def randomTemperature() -> str:
+    return str(35 + round(random.random(), 1))
+
+
+# 获取到前一天日期
+def getYesDate() -> str:
+    return (date.today() + timedelta(days=-1)).strftime("%Y-%m-%d")
 
 
 # 获得JnuId
@@ -71,8 +82,9 @@ def checkin(session, jnuid):
         # todo 组装mainTable
         mainTable = {k: v for k, v in lastCheckin['mainTable'].items() if
                      v != '' and not k in ['personType', 'createTime', 'del', 'id', 'other', 'passAreaC2', 'passAreaC3',
-                                           'passAreaC4']}
-        mainTable['declareTime'] = time.strftime('%Y-%m-%d', time.localtime())
+                                           'passAreaC4', 'temperature']}
+        mainTable['declareTime'] = time.strftime('%Y-%m-%d', time.localtime())  # 当日日期
+        mainTable['temperature'] = randomTemperature()  # 当日体温
         mainTable['way2Start'] = ''
         info['mainTable'] = mainTable
         # todo 组装secondTable
@@ -93,7 +105,7 @@ def checkin(session, jnuid):
                     'other8': mainTable['personC3'],
                     'other9': mainTable['personC3id'],
                 }
-            elif mainTable['inChina'] == '2':
+            else:
                 secondTable = {
                     'other1': mainTable['inChina'],
                     'other2': mainTable['countryArea'],
@@ -102,6 +114,13 @@ def checkin(session, jnuid):
         else:
             secondTable = {k: v for k, v in lastCheckin['secondTable'].items() if v != '' and not k in ['mainId', 'id']}
             secondTable['other12'] = ''
+        # todo 开始补充新的信息 => 早上/中午/晚上检查
+        secondTable['other29'] = randomTemperature()  # 早上
+        secondTable['other30'] = getYesDate()  # 早上
+        secondTable['other31'] = randomTemperature()  # 中午
+        secondTable['other32'] = getYesDate()  # 中午
+        secondTable['other33'] = randomTemperature()  # 晚上
+        secondTable['other34'] = getYesDate()  # 晚上
         info['secondTable'] = secondTable
         info['jnuid'] = jnuid
         return info
