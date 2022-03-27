@@ -1,6 +1,6 @@
 #  学生健康打卡
 
-<img src='https://img.shields.io/badge/Version-1.0.2-orange' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-1.0.0-green' style='float:left; width:100px'/>
 
 `JXxxStuHealth  `模拟滑块实现打卡项目
 
@@ -106,7 +106,7 @@ $ service cron restart
 <details>
 <summary>20220325</summary>
 <h3>添加表格参数</h3>
-  
+
 新的表格出现了早/中/晚的昨日测量数据
 现在已经加上且附带35.5-36.5的随机体温
 </details>
@@ -115,14 +115,14 @@ $ service cron restart
 <details>
 <summary>20220227</summary>
 <h3>紧急修复Crontab问题</h3>
-  
+
 加入拓展之后并在Crontab下执行会路径发生问题，经过我的排查在当前文件夹下使用 `cp -r ./hideHeader /home/ubuntu`并赋予执行权限 `chmod -R 777 /home/ubuntu/hideHeader`即可。至于路径不统一，查看[我的博客](https://hengy1.top/article/2c7b2295.html)简单配置即可找到问题所在。
 </details>
 
 <details>
 <summary>20220226</summary>
 <h3>重构发包与修改日志记录</h3>
-  
+
 当初年少不懂事，写的代码自尝苦果，写的不好自己现在重新写下。
 新版发出，敬请谅解，多多指教～
 
