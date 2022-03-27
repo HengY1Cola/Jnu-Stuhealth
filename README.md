@@ -1,8 +1,8 @@
-#  学生健康打卡（简单版）
+#  学生健康打卡
 
-<img src='https://img.shields.io/badge/Version-1.0.1-orange' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-1.0.2-orange' style='float:left; width:100px'/>
 
-`JnuStuHealth  `模拟滑块实现打卡项目
+`JXxxStuHealth  `模拟滑块实现打卡项目
 
 本项目实现自动打卡建议自备一台**连续不断运行**的服务器，该项目是在**ubuntu**上面实现的。
 
@@ -10,19 +10,15 @@
 
 因为验证码具有短暂的时效性，后改用了**生产者与消费者**模式，**即产即消**！
 
-##  完整版本 😊
+##  责任说明 😊
 
-最难的地方是破解滑动模块拿到验证`Validata`
+> *最终解释权由发布者持有
 
-在此特别鸣谢小透明的API版本：https://github.com/SO-JNU/stuhealth-validate-server
+由于项目的敏感性现在已经删除了**关键字**。项目仍然会持续更新.
 
-通过👆版本，你可以在服务器搭建起一台不断运行的服务且可以提供给他人使用
+本项目已于Github进行**开源/共享**,秉承技术无界限的原则
 
-但是打卡一般一天只进行一次，所以我完成了简单版本，且附上了注释。
-
-👇下面是过滑动验证效果图：
-
-<img src="https://dailypic.hengyimonster.top/typora/aim.gif" style="zoom:66%;float:left" />
+一切使用该项目造成的后果应由**使用者负责**
 
 ##  快速部署 🚀
 
