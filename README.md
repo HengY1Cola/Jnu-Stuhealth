@@ -2,7 +2,7 @@
 
 <img src='https://img.shields.io/badge/Version-1.0.0-green' style='float:left; width:100px'/>
 
-`JXxxStuHealth  `模拟滑块实现打卡项目
+`JxxStuHealth  `模拟滑块实现打卡项目
 
 本项目实现自动打卡建议自备一台**连续不断运行**的服务器，该项目是在**ubuntu**上面实现的。
 
