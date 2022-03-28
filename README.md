@@ -1,6 +1,6 @@
 #  学生健康打卡
 
-<img src='https://img.shields.io/badge/Version-1.0.0-green' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-1.0.1-green' style='float:left; width:100px'/>
 
 `JxxStuHealth  `模拟滑块实现打卡项目
 
@@ -20,6 +20,12 @@
 
 一切使用该项目造成的后果应由**使用者负责**
 
+##  Docker部署(推荐) 🏖️
+
+> 仅限于x86架构，同我arm架构的话就采用下面的快速部署
+
+请跳转到对应的分支下👉 https://github.com/HengY1Sky/Jxx-Stuhealth/tree/docker
+
 ##  快速部署 🚀
 
 > 特别注意⚠️：
@@ -32,7 +38,7 @@
 
 ```bash
 # git下载
-$ sudo git clone https://github.com/hengyi666/JnuStuhealth-simple.git clock
+$ sudo git clone https://github.com/HengY1Sky/Jxx-Stuhealth.git clock
 $ cd clock
 
 # 安装依赖
@@ -101,7 +107,15 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**添加表格参数**
+最新描述：**添加Docker容器**
+
+<details>
+<summary>20220326</summary>
+<h3>添加Docker容器</h3>
+
+为了快速上手使用，造福大家免除配置环境的烦恼。
+~~被迫~~花了点时间搭建了个容器，记得点个星星。
+</details>
 
 <details>
 <summary>20220325</summary>
