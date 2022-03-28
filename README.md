@@ -1,169 +1,56 @@
-#  学生健康打卡
+##  前言：
 
-<img src='https://img.shields.io/badge/Version-1.0.0-green' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-1.0.0-orange' style='float:left; width:100px'/>
 
-`JxxStuHealth  `模拟滑块实现打卡项目
+虽然我已经在源码中写的十分详细了，但是不免存在使用者部署不成功的情况
 
-本项目实现自动打卡建议自备一台**连续不断运行**的服务器，该项目是在**ubuntu**上面实现的。
+我就无赖擦了擦我台式的灰(**为了x86架构**)，打包了一个存在`firefox+geckodriver+python3.8`的环境
 
-本项目的设想是必须**开通邮件通**知，因为上去检查下今天打卡没与设计概念**背道而驰**
+下面的话只要简单几步(根本不需要知道Docker是什么/怎么用)就能完全复刻。
 
-因为验证码具有短暂的时效性，后改用了**生产者与消费者**模式，**即产即消**！
+> 我在台式机测试是完全没有问题的，存在错误/Bug请提交 Issues/Pr，十分感谢
 
-##  责任说明 😊
+##  提前准备
 
-> *最终解释权由发布者持有
+- Docker/Docker-compose的安装
+- 邮件授权码的获取（暂时仅支持QQ）
 
-由于项目的敏感性现在已经删除了**关键字**。项目仍然会持续更新.
+1. [Ubuntu 18.04上安装和使用Docker](https://www.myfreax.com/how-to-install-and-use-docker-on-ubuntu-18-04/)
+2. [Ubuntu 20.04上安装Docker Compose](https://www.myfreax.com/how-to-install-and-use-docker-compose-on-ubuntu-20-04/)
+3. [QQ邮箱授权码获取](https://www.cnblogs.com/kimsbo/p/10671851.html)
 
-本项目已于Github进行**开源/共享**,秉承技术无界限的原则
+##  设计理念
 
-一切使用该项目造成的后果应由**使用者负责**
+> 可以当作如何使用的前言,了解我的思路才能更改使用 <(￣ˇ￣)/
 
-##  快速部署 🚀
+1. 拉下来项目后直接使用`docker-compose pull`会拉取到远程仓库的镜像(大约1G内存)。拉下来一次就好了
+2. 如果你嫌网速慢得话：Linux/Ubuntu终端走代理：https://www.hengy1.top/article/3dadfa74.html
+3. 如果你没有代理得话： https://fastlink-aff.com/auth/register?code=HengY1Sky （广告）
+4. 使用`docker-compose up -d --build`的话会运行内置命令，完毕后容器会EXIT但是不会删除容器
+5. 重新使用该容器只需要`docker-compose restart`就可以重启服务，这样得话就可以设置`crontab`服务
+6. `crontab`设计思路是在每天得定时且需要指定文件`-f docker-compose.yml`即可以每天定时自动打卡
 
-> 特别注意⚠️：
+Eg：`1 0 * * * /usr/bin/docker-compose -f /home/ubuntu/Jxx-Stuhealth/docker-compose.yml restart` 
+
+> `docker-compose`究竟在哪可以使用`whereis docker-compose   `查看
 >
-> selenium中的谷歌版本存在BUG即chromedriver的无头版本会报错❌
->
-> `window.initNECaptcha`会说找不到的问题，但是**火狐**是没问题的。
+> `docker-compose.yml`的路径换成自己的就好了
 
-授权码的获取简单给个链接🔗： https://www.cnblogs.com/kimsbo/p/10671851.html
+## 如何使用
+
+> 记得给本项目点个星星✨，如果某天崩了会收到消息尽早解决，到本仓库看最新的镜像
+
+DockerHub 仓库：https://hub.docker.com/repository/docker/hengyisky/daily
 
 ```bash
-# git下载
-$ sudo git clone https://github.com/hengyi666/JnuStuhealth-simple.git clock
-$ cd clock
-
-# 安装依赖
-$ pip install -r requirements.txt
-
-# 安装了firefox
-$ apt update && apt upgrade # 更新包 
-$ apt install firefox
-
-# 安装geckodriver https://github.com/mozilla/geckodriver/releases
-$ wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
-$ tar -zxvf ./geckodriverxxx  # 解压下来
-$ cp ./geckodriver /usr/bin/geckodriver  # 丢到环境中去必要赋予权限
-$ chmod 755 /usr/bin/geckodriver
-
-# 写入 账号 密码 邮箱 备注
-# 写入邮箱与授权码
-$ vim dayClock.txt
-$ vim utils.py # SEND_EMAIL AUTH_REGISTERED 设置通知邮箱📮以及授权码
-
-# 为了corntab找到路径
-$ cp -r ./hideHeader /home/ubuntu
-$ chmod -R 777 /home/ubuntu/hideHeader
-
-# 运行
-$ python app.py
+$ git clone https://github.com/HengY1Sky/Jxx-Stuhealth.git
+$ cd Jxx-Stuhealth
+$ git checkout docker # 切换分支
+# 当前目录为：克隆目录
+# 编辑dayClock.txt与docker-compose.yaml
+$ docker-compose pull # 拉下来对应的镜像
+$ docker-compose up -d --build # 后台启动将会自己运行规定命令查看是否成功
+# 执行完毕之后呢就会EXIT(使用 docker-compose ps)查看
+$ docker-compose rm -f # 删除容器
 ```
 
-## 文件结构 📁
-
-```
-├── app.py  # 入口运行文件
-├── bgImg # 背景图片
-│
-├── dayClock.txt  # 保存打卡账号密码文件
-├── handlePackage.py # 处理发包
-├── handleValidate.py # 处理验证码
-│
-├── log  # 输出日志
-│   
-├── requirements.txt # 依赖文件
-└── utils.py  # 仓库
-```
-
-##  定时开启任务 ⏰
-
-```bash
-# 开启定时
-# 参考链接 https://blog.csdn.net/longgeaisisi/article/details/90477975
-$ sudo apt-get install cron
-$ crontab -l # 是否安装以及已有任务
-$ service cron start # 开启cron
-$ crontab -e # 选择3
-# 将  1 0 * * * /usr/bin/python /home/ubuntu/clock/app.py  写入注意修改路径
-$ service cron restart
-# 建议将app文件中的记录日志的路径写为绝对的
-```
-
-##  注意事项 ⚠️
-
-1. 当遇到说`webp`·文件不识别的时候： `pip install --upgrade pillow`升级下就好了
-2. 当出现`state code 1`时候，在当前目录下打开`geckodriver.log`查看情况进行修复
-3. 当`root`用户无法使用，`sudo crontab -u ubuntu -e`为ubuntu用户开启定时任务
-
-> 其他问题请[谷歌](https://www.google.com.hk/)解决～ 代码问题请提交PR或者开Issue
-
-##  更新日志
-
-最新描述：**添加表格参数**
-
-<details>
-<summary>20220325</summary>
-<h3>添加表格参数</h3>
-
-新的表格出现了早/中/晚的昨日测量数据
-现在已经加上且附带35.5-36.5的随机体温
-</details>
-
-
-<details>
-<summary>20220227</summary>
-<h3>紧急修复Crontab问题</h3>
-
-加入拓展之后并在Crontab下执行会路径发生问题，经过我的排查在当前文件夹下使用 `cp -r ./hideHeader /home/ubuntu`并赋予执行权限 `chmod -R 777 /home/ubuntu/hideHeader`即可。至于路径不统一，查看[我的博客](https://hengy1.top/article/2c7b2295.html)简单配置即可找到问题所在。
-</details>
-
-<details>
-<summary>20220226</summary>
-<h3>重构发包与修改日志记录</h3>
-
-当初年少不懂事，写的代码自尝苦果，写的不好自己现在重新写下。
-新版发出，敬请谅解，多多指教～
-
-- 重构发包
-- 修改日志记录
-</details>
-
-<details>
-<summary>20220225</summary>
-<h3>修改方式以及优化部分代码</h3>
-
-受到小透明的启发，发现利用油猴方式是可以在不降低版本的情况下进行浏览器头部的绕过，以及发现部分代码存在可以优化空间。
-正如小透明所说，降低版本是一个不明智的决定，抱歉～
-
-- 添加上了绕过方式
-- 添加了Logging日志记录格式
-- 暂时修复Connection aborted
-</details>
-
-<details><summary>20220215</summary>
-<h3>动模块检测window.navigator修复(废弃)</h3>
-
-收到邮箱错误，上去Debug发现只要是自动浏览器总是错的，不可能是对的。由于issue#1680  链接：https://github.com/mozilla/geckodriver/issues/1680
-
-**作者在上面说**：And that is because the WebDriver spec defines that property on the Navigator object, which has to be set to true 
-when tests are running with webdriver enabled. **即在88.0版本以上之后geckodriver不提供window.navigator.webdriver设置为None**
-
-如果我发现有像谷歌存在`execute_cdp_cmd`的方法**我会第一时间更新**，所以总的思路已经有了。
-
-``` bash
-$ apt remove firefox # 卸载最新版本的firefox
-$ wget https://ftp.mozilla.org/pub/firefox/releases/87.0b1/linux-x86_64/zh-CN/firefox-87.0b1.tar.bz2
-$ tar -jxvf firefox-87.0b1.tar.bz2 # 会有个firefox文件
-$ cd firefox
-$ ./firefox --version # 查看版本
-$ pwd # 查看firefox在哪里
-$ sudo echo "export PATH=/home/ubuntu/firefox:$PATH" >  /etc/profile # 写入
-$ source /etc/profile
-$ firefox --version # 查看版本
-$ python handleValidate.py # 如果为None就是成功了的(执行时注意用户)
-# 关闭自动更新 https://blog.csdn.net/yu1014745867/article/details/79639440
-$ crontab -e # 重新编辑
-# 1 0 * * * . /etc/profile;/usr/bin/python /home/ubuntu/clock/app.py 将这句话改成你的对应路径写入
-```

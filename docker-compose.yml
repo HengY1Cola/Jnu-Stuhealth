@@ -1,0 +1,11 @@
+version: '2'
+services:
+  container:
+    image: hengyisky/daily:v1.0
+    environment:
+      - SEND_EMAIL=your-email
+      - AUTH_REGISTERED=your-auth
+    volumes:
+      - ./dayClock.txt:/jnuStuhealth/dayClock.txt
+      - ./hideHeader:/hideHeader
+    command: python3 /jnuStuhealth/app.py
