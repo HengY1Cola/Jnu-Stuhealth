@@ -1,8 +1,8 @@
 #  学生健康打卡
 
-<img src='https://img.shields.io/badge/Version-1.0.1-green' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-1.0.2-green' style='float:left; width:100px'/>
 
-`JxxStuHealth  `模拟滑块实现打卡项目
+`Jnu-StuHealth  `模拟滑块实现打卡项目
 
 本项目实现自动打卡建议自备一台**连续不断运行**的服务器，该项目是在**ubuntu**上面实现的。
 
@@ -14,7 +14,9 @@
 
 > *最终解释权由发布者持有
 
-由于项目的敏感性现在已经删除了**关键字**。项目仍然会持续更新.
+若您**切换了定位**，请及时手动打卡一次即可。
+
+本项目初衷是避免**重复性**，但请自己确保**真实性**。
 
 本项目已于Github进行**开源/共享**,秉承技术无界限的原则
 
@@ -24,7 +26,7 @@
 
 > 仅限于x86架构，同我arm架构的话就采用下面的快速部署
 
-请跳转到对应的分支下👉 https://github.com/HengY1Sky/Jxx-Stuhealth/tree/docker
+请跳转到对应的分支下👉 https://github.com/HengY1Sky/Jnu-Stuhealth/tree/docker
 
 ##  快速部署 🚀
 
@@ -38,7 +40,7 @@
 
 ```bash
 # git下载
-$ sudo git clone https://github.com/HengY1Sky/Jxx-Stuhealth.git clock
+$ sudo git clone https://github.com/HengY1Sky/Jnu-Stuhealth clock
 $ cd clock
 
 # 安装依赖
