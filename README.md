@@ -2,6 +2,8 @@
 
 <img src='https://img.shields.io/badge/Version-1.0.2-green' style='float:left; width:100px'/>
 
+注意⚠️： 暑假重新来维护下，目前是否失效还不知道，找个时间来看看
+
 `Jnu-StuHealth  `模拟滑块实现打卡项目
 
 本项目实现自动打卡建议自备一台**连续不断运行**的服务器，该项目是在**ubuntu**上面实现的。
