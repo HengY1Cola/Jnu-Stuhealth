@@ -1,8 +1,6 @@
 #  学生健康打卡
 
-<img src='https://img.shields.io/badge/Version-1.0.2-green' style='float:left; width:100px'/>
-
-注意⚠️： 暑假重新来维护下，目前是否失效还不知道，找个时间来看看
+<img src='https://img.shields.io/badge/Version-2.0.1-green' style='float:left; width:100px'/>
 
 `Jnu-StuHealth  `模拟滑块实现打卡项目
 
@@ -11,6 +9,8 @@
 本项目的设想是必须**开通邮件通**知，因为上去检查下今天打卡没与设计概念**背道而驰**
 
 因为验证码具有短暂的时效性，后改用了**生产者与消费者**模式，**即产即消**！
+
+最新添加了死信队列，进一步保障成功率。
 
 ##  责任说明 😊
 
@@ -32,42 +32,21 @@
 
 ##  快速部署 🚀
 
-> 特别注意⚠️：
->
-> selenium中的谷歌版本存在BUG即chromedriver的无头版本会报错❌
->
-> `window.initNECaptcha`会说找不到的问题，但是**火狐**是没问题的。
-
 授权码的获取简单给个链接🔗： https://www.cnblogs.com/kimsbo/p/10671851.html
 
 ```bash
-# git下载
-$ sudo git clone https://github.com/HengY1Sky/Jnu-Stuhealth clock
+# 先在Root用户下
+# 默认是存在对应的Python以及pip环境的
+$ git clone https://github.com/HengY1Sky/Jnu-Stuhealth clock
+$ chmod -R 755 ./clock
 $ cd clock
-
-# 安装依赖
 $ pip install -r requirements.txt
-
-# 安装了firefox
 $ apt update && apt upgrade # 更新包 
 $ apt install firefox
 
-# 安装geckodriver https://github.com/mozilla/geckodriver/releases
-$ wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
-$ tar -zxvf ./geckodriverxxx  # 解压下来
-$ cp ./geckodriver /usr/bin/geckodriver  # 丢到环境中去必要赋予权限
-$ chmod 755 /usr/bin/geckodriver
-
-# 写入 账号 密码 邮箱 备注
-# 写入邮箱与授权码
-$ vim dayClock.txt
-$ vim utils.py # SEND_EMAIL AUTH_REGISTERED 设置通知邮箱📮以及授权码
-
-# 为了corntab找到路径
-$ cp -r ./hideHeader /home/ubuntu
-$ chmod -R 777 /home/ubuntu/hideHeader
-
-# 运行
+# 切回去用户
+$ su ubuntu
+$ vim demo.json
 $ python app.py
 ```
 
@@ -76,13 +55,14 @@ $ python app.py
 ```
 ├── app.py  # 入口运行文件
 ├── bgImg # 背景图片
+├── bin # driver执行文件
+├── hideHeader # 隐藏浏览器识别
+├── log  # 输出日志
 │
-├── dayClock.txt  # 保存打卡账号密码文件
+├── demo.json  # 编辑信息的
 ├── handlePackage.py # 处理发包
 ├── handleValidate.py # 处理验证码
 │
-├── log  # 输出日志
-│   
 ├── requirements.txt # 依赖文件
 └── utils.py  # 仓库
 ```
@@ -111,7 +91,14 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**添加Docker容器**
+最新描述：**文件重构**
+
+<details>
+<summary>20220709</summary>
+<h3>文件重构</h3>
+
+把文件全部封装起来了，更好维护。Docker尽快吧
+</details>
 
 <details>
 <summary>20220326</summary>

@@ -1,0 +1,17 @@
+{
+    "auth_email": "your email",
+    "auth_code": "your email auth code",
+    "auth_service": "smtp.qq.com",
+    "user_list": [
+        {
+            "account": "demo_1",
+            "password": "demo_1",
+            "email": "demo_1"
+        },
+         {
+            "account": "demo_2",
+            "password": "demo_2",
+            "email": "demo_2"
+        }
+    ]
+}

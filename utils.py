@@ -1,4 +1,6 @@
+import json
 import logging
+import re
 import struct
 import os
 from PIL import Image
@@ -7,46 +9,24 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from smtplib import SMTP_SSL, SMTPException
+from smtplib import SMTP_SSL, SMTPException, SMTPAuthenticationError
 import queue
 
-# --------------------- 需要填写的信息 ---------------------
-SEND_EMAIL = ''  # 邮件注册
-AUTH_REGISTERED = ""  # 授权码
+# --------------------- 初始化路径信息 ---------------------
 CURRENT_PATH = os.path.dirname(__file__)
 BG_IMG_PATH = os.path.join(CURRENT_PATH, 'bgImg')
 LOG_PATH = os.path.join(CURRENT_PATH, 'log')
-TOKEN_QUEUE, TOTAL_QUEUE = queue.Queue(0), queue.Queue(0)
-SUCCESS, REPEAT, ERROR = [], [], []
+HIDE_HEADER = os.path.join(CURRENT_PATH, 'hideHeader')
+BIN_DRIVER = os.path.join(CURRENT_PATH, 'bin')
+JSON_PATH = os.path.join(CURRENT_PATH, 'demo_info.json')
 
-# --------------------- 默认配置 ---------------------
-banner = '''
-     _             ____  _         _   _            _ _   _     
-    | |_ __  _   _/ ___|| |_ _   _| | | | ___  __ _| | |_| |__  
- _  | | '_ \| | | \___ \| __| | | | |_| |/ _ \/ _` | | __| '_ \ 
-| |_| | | | | |_| |___) | |_| |_| |  _  |  __/ (_| | | |_| | | |
- \___/|_| |_|\__,_|____/ \__|\__,_|_| |_|\___|\__,_|_|\__|_| |_|
-'''
-
-fileName = os.path.join(LOG_PATH, date.today().strftime("%Y_%m") + ".log")
-timeNow = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-# todo 设置日志
-logging.basicConfig(level=logging.INFO,
-                    filename=fileName,
-                    datefmt='%Y/%m/%d %H:%M:%S',
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)d - %(module)s - %(message)s')
-logger = logging.getLogger(__name__)
+# --------------------- 初始化变量 ---------------------
+TOKEN_QUEUE = queue.Queue(0)
+ERR_PWD, SUCCESS, REPEAT, DEAD_LATER, FINAL_ERROR, = [], [], [], [], []
 
 
 # ---------------------仓库函数 ---------------------
 
-# 获取文本
-def getTxt(Path):
-    with open(Path, "r") as f:
-        return [str(each).replace('\n', '') for each in f.readlines()]
-
-
-# 获取图片的dHash
 def getImageHash(img: Image) -> bytes:
     img = img.convert('L').resize((17, 16), Image.LANCZOS)
     imgBytes = img.tobytes()
@@ -83,7 +63,6 @@ def getImageHashDiff(hashA: bytes, hashB: bytes) -> int:
     return diff
 
 
-# 计算多项式，每一项是pn * (x ** n)
 def polynomialCalc(x: float, params) -> float:
     return sum(p * (x ** n) for n, p in enumerate(params))
 
@@ -99,45 +78,98 @@ def untilFindElement(by: By, value: str):
     return func
 
 
-#  打印并写入日志
-def printAndLog(strInfo):
-    print("- " + strInfo)
-    logging.info(strInfo)
+class ParseHandle:
+    def __init__(self):
+        self.json_path = JSON_PATH  # 写死到这里读取文件
+
+    def readJsonInfo(self) -> dict:
+        try:
+            with open(self.json_path, 'r', encoding="utf-8") as f:
+                load_dict = json.load(f)
+                printInfoAndDoLog("readJsonInfo", str(load_dict))
+                return load_dict
+        except Exception as e:
+            printErrAndDoLog("readJsonInfo", e)
+            raise e
+
+    def doParse(self):
+        parse_json = self.readJsonInfo()
+        auth_email = parse_json.get("auth_email", "")
+        auth_code = parse_json.get("auth_code", "")
+        auth_service = parse_json.get("auth_service", "smtp.qq.com")
+        user_list = parse_json.get("user_list", [])
+        if len(user_list) == 0:
+            printInfoAndDoLog("doParse", "user_list len is 0")
+            raise Exception("user_list len is 0")
+        email_validator = EmailHandle(auth_email, auth_code, auth_service)
+        if auth_code == "" or auth_email == "" or not email_validator.validatePass(
+                auth_email) or not email_validator.validateAuth():
+            printInfoAndDoLog("doParse", "email error")
+            raise Exception("email error")
+        printInfoAndDoLog("doParse", "处理共 {} 打卡信息".format(len(user_list)))
+        return email_validator, user_list
 
 
-#  打印并写入日志
-def printAndLogError(funcName, error):
-    print(f"[X] {funcName} account error: {error}")
-    logging.warning(error)
+class EmailHandle:
+    def __init__(self, email_str, auth_code, service="smtp.qq.com"):
+        self.authEmail = email_str
+        self.authCode = auth_code
+        self.authService = service
+
+    @staticmethod
+    def validatePass(email_str) -> bool:
+        return False if not re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', email_str) else True
+
+    def validateAuth(self) -> bool:
+        try:
+            server = SMTP_SSL(self.authService, 465)
+            server.login(self.authEmail, self.authCode)
+            server.quit()
+            return True
+        except SMTPAuthenticationError:
+            return False
+
+    def doNotice(self, title, toEmailList, msg):
+        message = MIMEMultipart('related')
+        message['Subject'] = title
+        message['From'] = self.authEmail
+        message['To'] = ','.join(toEmailList) if isinstance(toEmailList, list) else toEmailList
+        message.attach(MIMEText(msg))
+        try:
+            server = SMTP_SSL(self.authService, 465)
+            server.login(self.authEmail, self.authCode)  # 授权码
+            server.sendmail(self.authEmail, message['To'].split(','), message.as_string())
+            server.quit()
+            return None
+        except Exception as e:
+            return e
 
 
-# 发送邮件
-def send(subject, text, email, send_email, auth):
-    """
-    :param auth: 授权码
-    :param send_email: 发件人邮件（于授权码匹配）
-    :param subject: 邮件标题
-    :param text: 邮件文本
-    :param email: 邮箱
-    :return:
-    """
-    Subject = subject
-    sender = send_email  # 发件人邮箱
-    receivers = email  # 收件人邮箱
-    receivers = ','.join(receivers) if isinstance(receivers, list) else receivers
+# --------------------- 默认配置 ---------------------
+banner = '''
+     _             ____  _         _   _            _ _   _     
+    | |_ __  _   _/ ___|| |_ _   _| | | | ___  __ _| | |_| |__  
+ _  | | '_ \| | | \___ \| __| | | | |_| |/ _ \/ _` | | __| '_ \ 
+| |_| | | | | |_| |___) | |_| |_| |  _  |  __/ (_| | | |_| | | |
+ \___/|_| |_|\__,_|____/ \__|\__,_|_| |_|\___|\__,_|_|\__|_| |_|
+'''
 
-    message = MIMEMultipart('related')
-    message['Subject'] = Subject
-    message['From'] = sender
-    message['To'] = receivers  # 处理多人邮箱
-    content = MIMEText(text)
-    message.attach(content)
+fileName = os.path.join(LOG_PATH, date.today().strftime("%Y_%m") + ".log")
+timeNow = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+logging.basicConfig(level=logging.INFO,
+                    filename=fileName,
+                    datefmt='%Y/%m/%d %H:%M:%S',
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    try:
-        server = SMTP_SSL("smtp.qq.com", 465)
-        server.login(sender, auth)  # 授权码
-        server.sendmail(sender, message['To'].split(','), message.as_string())
-        server.quit()
-    except SMTPException as e:
-        printAndLog("发送邮件失败", e)
-        pass
+
+def printInfoAndDoLog(funcName, info):
+    info_str = f"[*] {funcName} {info}"
+    print(info_str)
+    logging.info(funcName + info)
+
+
+def printErrAndDoLog(funcName, error):
+    err_str = f"[X] {funcName} account error: {error}"
+    print(err_str)
+    logging.warning(err_str)

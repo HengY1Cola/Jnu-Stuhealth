@@ -1,61 +1,43 @@
-import re
 import threading
-from handlePackage import *
-from handleValidate import prepareToken
+import time
+from handleValidate import Chef
+from handlePackage import ConsumerWork
 from utils import *
 
-# todo 入口
 print(banner)
-print('Source on GitHub: https://github.com/HengY1Sky/Jnu-Stuhealth-Simple\nAuthor: Hengyi')
+print('Source on GitHub: https://github.com/HengY1Sky/Jnu-Stuhealth\nAuthor: Hengyi')
 
-# todo 分析文本
-txtPath = os.path.join(CURRENT_PATH, 'dayClock.txt')
-allInfo = getTxt(txtPath)
-handleList = []
-for each in allInfo:
-    one, eachList = dict(), each.split(' ')
-    if eachList[0] == '#':
-        continue
-    if len(eachList) < 3:
-        raise Exception('文本参数错误')
-    if not re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', eachList[2]):
-        raise Exception('邮箱不匹配')
-    one['account'], one['password'], one['email'] = eachList[0], eachList[1], eachList[2]
-    handleList.append(one)
-if len(handleList) == 0:
-    raise Exception('无打卡信息')
-printAndLog("- 处理完共 {} 打卡信息".format(len(handleList)))
+email_validator, user_list_info = ParseHandle().doParse()
 
-# todo 生产Token
-producer = threading.Thread(target=prepareToken, args=(handleList,))
-producer.start()
-
-# todo 开始消费拿到每位的JnuId并打卡
-for x in range(len(handleList)):
-    time.sleep(0.5)
-    t = threading.Thread(target=threadModel, args=(handleList[x],))
+for each_info in user_list_info:
+    t = threading.Thread(target=ConsumerWork, args=(each_info, True, ))
     t.start()
 
-# todo 打卡处理完成 准备邮件通知
+producer = threading.Thread(target=Chef(user_list_info).prepareToken)
+producer.start()
+
 time_start = time.time()
+today = date.today()
 while True:
     now = time.time()
-    if now - time_start >= (len(handleList) + 1) * 30:
-        printAndLogError("app", "- 超时")
-        break
-    if TOTAL_QUEUE.qsize() == len(handleList):
-        today = date.today()
-        printAndLog(f'- 共用时 {int(now - time_start)} 秒')
+    if now - time_start >= (len(user_list_info) + 2) * 30:
+        printErrAndDoLog("app", "超时 强制结束")
+        raise Exception("强制结束")
+    if len(DEAD_LATER) != 0:
+        for each_info in DEAD_LATER:
+            t = threading.Thread(target=ConsumerWork, args=(each_info, False,))
+            t.start()
+            DEAD_LATER.remove(each_info)
+    if len(ERR_PWD) + len(SUCCESS) + len(REPEAT) + len(FINAL_ERROR) == len(user_list_info):
+        printInfoAndDoLog("app", f'共用时 {int(now - time_start)} 秒')
         if len(SUCCESS) != 0:
-            send("打卡成功", f'{str(today)} 打卡成功', SUCCESS, SEND_EMAIL, AUTH_REGISTERED)
-            printAndLog(f'{str(SUCCESS)} 打卡通知成功')
+            email_validator.doNotice("打卡成功", SUCCESS, f'{str(today)} 打卡成功')
+            printInfoAndDoLog("doNotice", f'{str(SUCCESS)} 打卡通知成功')
         if len(REPEAT) != 0:
-            printAndLog(f'{str(REPEAT)} 重复打卡')
-        if len(ERROR) != 0:
-            send("打卡失败", f'{str(today)} 打卡失败', ERROR, SEND_EMAIL, AUTH_REGISTERED)
-            printAndLog(f'{str(ERROR)} 打卡失败通知')
-        send("打卡任务完成", f'{str(today)} 打卡任务完成 成功：{str(SUCCESS)}, 失败：{str(ERROR)}, 重复：{str(REPEAT)}',
-             SEND_EMAIL, SEND_EMAIL, AUTH_REGISTERED)
-        printAndLog('- 打卡任务完成')
+            printInfoAndDoLog("doNotice", f'{str(REPEAT)} 重复打卡')
+        if len(FINAL_ERROR) != 0:
+            email_validator.doNotice("打卡失败", FINAL_ERROR, f'{str(today)} 打卡失败')
+            printInfoAndDoLog("doNotice", f'{str(FINAL_ERROR)} 打卡通知失败')
+        printInfoAndDoLog("app", f'{str(today)} 打卡任务完成 成功：{str(SUCCESS)}, 失败：{str(FINAL_ERROR)}, 重复：{str(REPEAT)}')
         break
-printAndLog("- 主线程结束")
+printInfoAndDoLog("app", "主线程结束")
