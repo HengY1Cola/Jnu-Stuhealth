@@ -28,8 +28,12 @@ class Chef:
     def prepareToken(self):
         printInfoAndDoLog("prepareToken", "即将开启浏览器准备获取ValidateToken")
         self.browser.get('https://stuhealth.jnu.edu.cn/')
-        retry_time, all_times = 0, 0
+        retry_time, all_times, start = 0, 0, time.time()
         while len(ERR_PWD) + len(SUCCESS) + len(REPEAT) + len(FINAL_ERROR) != len(self.all_list):
+            # TODO 临时解决问题
+            if time.time() - start >= (len(self.all_list) + 2) * 30:
+                printErrAndDoLog("prepareToken", "子进程浏览器强制退出")
+                raise Exception("强制结束")
             if retry_time >= 3:
                 printErrAndDoLog("prepareToken", "超过最大次数")
                 break
