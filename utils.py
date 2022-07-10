@@ -11,6 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP_SSL, SMTPException, SMTPAuthenticationError
 import queue
+from handlePackage import Consumer
 
 # --------------------- 初始化路径信息 ---------------------
 CURRENT_PATH = os.path.dirname(__file__)
@@ -106,8 +107,12 @@ class ParseHandle:
                 auth_email) or not email_validator.validateAuth():
             printInfoAndDoLog("doParse", "email error")
             raise Exception("email error")
-        printInfoAndDoLog("doParse", "处理共 {} 打卡信息".format(len(user_list)))
-        return email_validator, user_list
+        user_list_final = []
+        for each in user_list:
+            if Consumer(each).init():
+                user_list_final.append(each)
+        printInfoAndDoLog("doParse", "处理共 {} 打卡信息".format(len(user_list_final)))
+        return email_validator, user_list_final
 
 
 class EmailHandle:

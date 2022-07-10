@@ -91,13 +91,20 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**文件重构**
+最新描述：**修复Bug**
+
+<details>
+<summary>20220710</summary>
+<h3>修复Bug</h3>
+
+发现在分析Json的时候并没有分析每个人的，导致在后端计算的时候始终不对。并且加上了保险，子线程也会Kill掉，免得被init接收无限制下去造Token
+</details>
 
 <details>
 <summary>20220709</summary>
 <h3>文件重构</h3>
 
-把文件全部封装起来了，更好维护。Docker尽快吧
+把文件全部封装起来了，更好维护。
 </details>
 
 <details>

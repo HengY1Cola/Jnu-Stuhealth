@@ -48,11 +48,11 @@ class Consumer:
             printErrAndDoLog("Consumer", f"{user_info_dict} init err")
             self.init_flag = False
 
-    def __init(self) -> bool:
+    def init(self) -> bool:
         return self.init_flag
 
     def doThreadModel(self, flag: bool):
-        if not self.__init():
+        if not self.init():
             return
         printInfoAndDoLog("doThreadModel", f"{self.account} 开启线程")
         unique_token = TOKEN_QUEUE.get()  # 会进入阻塞状态
