@@ -8,10 +8,7 @@ from urllib3 import Retry
 import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
-
-from utils import TOKEN_QUEUE
-from utils import ERR_PWD, SUCCESS, REPEAT, DEAD_LATER, FINAL_ERROR
-from utils import EmailHandle, printErrAndDoLog, printInfoAndDoLog
+import utils
 
 
 #  创建头部
@@ -43,9 +40,9 @@ class Consumer:
         self.session = None
         self.jnu_id = None
         self.data_bag = None
-        if self.account == "" or self.password == "" or self.email == "" or not EmailHandle("", "").validatePass(
+        if self.account == "" or self.password == "" or self.email == "" or not utils.EmailHandle("", "").validatePass(
                 self.email):
-            printErrAndDoLog("Consumer", f"{user_info_dict} init err")
+            utils.utils.printErrAndDoLog("Consumer", f"{user_info_dict} init err")
             self.init_flag = False
 
     def init(self) -> bool:
@@ -54,8 +51,8 @@ class Consumer:
     def doThreadModel(self, flag: bool):
         if not self.init():
             return
-        printInfoAndDoLog("doThreadModel", f"{self.account} 开启线程")
-        unique_token = TOKEN_QUEUE.get()  # 会进入阻塞状态
+        utils.printInfoAndDoLog("doThreadModel", f"{self.account} 开启线程")
+        unique_token = utils.TOKEN_QUEUE.get()  # 会进入阻塞状态
         self.session = requests.Session()
         self.session.mount(
             'https://',
@@ -69,17 +66,17 @@ class Consumer:
         )
         self.jnu_id = self.getJnuId(unique_token)
         if self.jnu_id == '':
-            ERR_PWD.append(self.account)
-            printErrAndDoLog("resJnuId", f'{self.account} 拿到JnuId错误')
+            utils.ERR_PWD.append(self.account)
+            utils.printErrAndDoLog("resJnuId", f'{self.account} 拿到JnuId错误')
             return
-        printInfoAndDoLog("doThreadModel", f"{self.account} 获取到 {self.jnu_id}")
+        utils.printInfoAndDoLog("doThreadModel", f"{self.account} 获取到 {self.jnu_id}")
 
         self.data_bag = self.checkin()
         if self.data_bag == '':
-            FINAL_ERROR.append(self.email)
-            printErrAndDoLog("checkin", f"{self.suitcase} 组装不了数据包")
+            utils.FINAL_ERROR.append(self.email)
+            utils.printErrAndDoLog("checkin", f"{self.suitcase} 组装不了数据包")
             return
-        printInfoAndDoLog("doThreadModel", f"{self.account} 组装好数据包")
+        utils.printInfoAndDoLog("doThreadModel", f"{self.account} 组装好数据包")
 
         self.postBag(flag)
 
@@ -95,7 +92,7 @@ class Consumer:
                             'validate': validateToken}), headers=header).json()['data']['jnuid']
             return jnuId
         except Exception as e:
-            printErrAndDoLog("getJnuId", e)
+            utils.printErrAndDoLog("getJnuId", e)
             return ''
 
     # 进行打卡
@@ -160,7 +157,7 @@ class Consumer:
             info['jnuid'] = self.jnu_id
             return info
         except Exception as e:
-            printErrAndDoLog("checkin", e)
+            utils.printErrAndDoLog("checkin", e)
             return ''
 
     def postBag(self, flag):
@@ -185,20 +182,20 @@ class Consumer:
             body_new = json.dumps(body)
             results = self.session.post(url, data=body_new, headers=headers).json()
             if results['meta']['code'] == 6666:
-                SUCCESS.append(self.email)
-                printInfoAndDoLog("postBag", f"{self.account} 打卡成功")
+                utils.SUCCESS.append(self.email)
+                utils.printInfoAndDoLog("postBag", f"{self.account} 打卡成功")
             elif results['meta']['code'] == 1111:
-                REPEAT.append(self.email)
-                printInfoAndDoLog("postBag", f"{self.account} 重复打卡")
+                utils.REPEAT.append(self.email)
+                utils.printInfoAndDoLog("postBag", f"{self.account} 重复打卡")
             else:
                 if flag:
-                    DEAD_LATER.append(self.suitcase)
-                    printInfoAndDoLog("postBag", f"{self.account} 加入死信队列")
+                    utils.DEAD_LATER.append(self.suitcase)
+                    utils.printInfoAndDoLog("postBag", f"{self.account} 加入死信队列")
                 else:
-                    FINAL_ERROR.append(self.email)
+                    utils.FINAL_ERROR.append(self.email)
 
         except Exception as e:
-            printErrAndDoLog("postBag", e)
+            utils.printErrAndDoLog("postBag", e)
 
 
 def ConsumerWork(each_info, flag):

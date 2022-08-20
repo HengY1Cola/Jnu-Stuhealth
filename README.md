@@ -43,7 +43,7 @@ $ cd clock
 $ pip install -r requirements.txt
 $ apt update && apt upgrade # 更新包 
 $ apt install firefox
-
+# bin目录下已经自带driver，如果版本不符合请到对应release下载正确版本
 # 切回去用户
 $ su ubuntu
 $ vim demo.json
