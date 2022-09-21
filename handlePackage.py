@@ -5,10 +5,12 @@ import time
 from datetime import date, timedelta
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
+from requests import cookies
 import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 import utils
+from handleWechat import WxToken
 
 
 #  创建头部
@@ -42,7 +44,7 @@ class Consumer:
         self.data_bag = None
         if self.account == "" or self.password == "" or self.email == "" or not utils.EmailHandle("", "").validatePass(
                 self.email):
-            utils.utils.printErrAndDoLog("Consumer", f"{user_info_dict} init err")
+            utils.printErrAndDoLog("Consumer", f"{user_info_dict} init err")
             self.init_flag = False
 
     def init(self) -> bool:
@@ -64,6 +66,9 @@ class Consumer:
                 )
             )
         )
+        jar = requests.cookies.RequestsCookieJar()
+        jar.set("JNU_AUTH_VERIFY_COOKIE", WxToken().getToken())
+        self.session.cookies.update(jar)
         self.jnu_id = self.getJnuId(unique_token)
         if self.jnu_id == '':
             utils.ERR_PWD.append(self.account)

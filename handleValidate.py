@@ -8,6 +8,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from utils import *
+from handleWechat import WxToken
 
 # 已知图片的Hash方便与即将填补的图片的hash进行比对
 IMG_BG_With_HASH = tuple(
@@ -15,19 +16,23 @@ IMG_BG_With_HASH = tuple(
 
 
 class Chef:
-    def __init__(self, user_list):
+    def __init__(self, user_list, env, platform):
         self.all_list = user_list
         options = webdriver.FirefoxOptions()
-        options.add_argument("--headless")
+        if env == 'pro':
+            options.add_argument("--headless")
         profile = webdriver.FirefoxProfile()
-        executable_path = os.path.join(BIN_DRIVER, 'geckodriver')
+        if platform == 'mac':
+            executable_path = os.path.join(BIN_DRIVER, 'geckodriver_mac')
+        else:
+            executable_path = os.path.join(BIN_DRIVER, 'geckodriver_linux')
         BROWSER = webdriver.Firefox(executable_path=executable_path, options=options, firefox_profile=profile)
         BROWSER.install_addon(os.path.realpath('hideHeader'), temporary=True)
         self.browser = BROWSER
 
     def prepareToken(self):
         printInfoAndDoLog("prepareToken", "即将开启浏览器准备获取ValidateToken")
-        self.browser.get('https://stuhealth.jnu.edu.cn/')
+        self.browser.get(WxToken().getActiveUrl())
         retry_time, all_times, start = 0, 0, time.time()
         while len(ERR_PWD) + len(SUCCESS) + len(REPEAT) + len(FINAL_ERROR) != len(self.all_list):
             # TODO 临时解决问题
@@ -42,7 +47,7 @@ class Chef:
                 time.sleep(random.randint(2, 4))
                 TOKEN_QUEUE.put(self.getValidateToken()) if self.getValidateToken() is not None else retry_time + 1
                 all_times += 1
-                self.browser.refresh()
+                self.browser.get(WxToken().getActiveUrl())
             except Exception as e:
                 printErrAndDoLog("prepareToken", e)
                 retry_time += 1

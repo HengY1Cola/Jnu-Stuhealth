@@ -3,4 +3,4 @@
 geckodriver.log
 venv
 __pycache__
-demo_info.json
+user_info.json

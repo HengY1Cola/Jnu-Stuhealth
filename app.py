@@ -4,16 +4,25 @@ from handleValidate import Chef
 from handlePackage import ConsumerWork
 from utils import *
 
+
 print(banner)
 print('Source on GitHub: https://github.com/HengY1Sky/Jnu-Stuhealth\nAuthor: Hengyi')
 
+# 加载配置
+setting = readSettings()
+env = setting.get("env", "linux")
+platform = setting.get("platform", "pro")
+if not (env == "pro" or env == "dev") or not (platform == "mac" or platform == "linux"):
+    raise Exception("No match ENV or PLATFORM. ENV: pro or dev | PLATFORM: mac or linux")
+
+# 处理用户信息
 email_validator, user_list_info = ParseHandle().doParse()
 
 for each_info in user_list_info:
     t = threading.Thread(target=ConsumerWork, args=(each_info, True, ))
     t.start()
 
-producer = threading.Thread(target=Chef(user_list_info).prepareToken)
+producer = threading.Thread(target=Chef(user_list_info, env, platform).prepareToken)
 producer.start()
 
 time_start = time.time()

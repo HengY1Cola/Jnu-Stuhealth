@@ -1,14 +1,6 @@
 #  学生健康打卡
 
-## 紧急通告
-
-学校的骚操作出现需要微信扫码，预计到22-09-25出新的版本，改造点：
-
-1. 添加开关进行无头浏览器展现，方便维护与调试
-2. 完善绕过逻辑，尽可能减少人力维护成本
-3. 添加一键发送全局通告，尽可能方便通知大家
-
-<img src='https://img.shields.io/badge/Version-2.0.1-green' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-2.0.2-green' style='float:left; width:100px'/>
 
 `Jnu-StuHealth  `模拟滑块实现打卡项目
 
@@ -18,7 +10,7 @@
 
 因为验证码具有短暂的时效性，后改用了**生产者与消费者**模式，**即产即消**！
 
-最新添加了死信队列，进一步保障成功率。
+最新 **已经支持绕过微信认证，并保持原有逻辑**
 
 ##  责任说明 😊
 
@@ -32,11 +24,13 @@
 
 一切使用该项目造成的后果应由**使用者负责**
 
-##  Docker部署(推荐) 🏖️
+##  Docker部署(废弃) 🏖️
 
 > 仅限于x86架构，同我arm架构的话就采用下面的快速部署
+>
+> 因为添加了微信认证，并没有时间进行重新打包 (废弃)
 
-请跳转到对应的分支下👉 https://github.com/HengY1Sky/Jnu-Stuhealth/tree/docker
+~~请跳转到对应的分支下👉 https://github.com/HengY1Sky/Jnu-Stuhealth/tree/docker~~
 
 ##  快速部署 🚀
 
@@ -54,7 +48,7 @@ $ apt install firefox
 # bin目录下已经自带driver，如果版本不符合请到对应release下载正确版本
 # 切回去用户
 $ su ubuntu
-$ vim demo.json
+$ vim user_info.json # 编辑用户信息
 $ python app.py
 ```
 
@@ -67,7 +61,8 @@ $ python app.py
 ├── hideHeader # 隐藏浏览器识别
 ├── log  # 输出日志
 │
-├── demo.json  # 编辑信息的
+├── user_info.json  # 编辑信息的
+├── setting.json # 用于方便调试的以及后面的拓展
 ├── handlePackage.py # 处理发包
 ├── handleValidate.py # 处理验证码
 │
@@ -99,11 +94,19 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**修复Bug**
+最新描述：**完美避开微信认证**
+
+<details>
+<summary>20220922</summary>
+<h3>避开微信</h3>
+
+花了点时间分析，轻松😉绕过
+</details>
 
 <details>
 <summary>20220710</summary>
 <h3>修复Bug</h3>
+
 
 发现在分析Json的时候并没有分析每个人的，导致在后端计算的时候始终不对。并且加上了保险，子线程也会Kill掉，免得被init接收无限制下去造Token
 </details>
@@ -112,12 +115,14 @@ $ service cron restart
 <summary>20220709</summary>
 <h3>文件重构</h3>
 
+
 把文件全部封装起来了，更好维护。
 </details>
 
 <details>
 <summary>20220326</summary>
 <h3>添加Docker容器</h3>
+
 
 为了快速上手使用，造福大家免除配置环境的烦恼。
 ~~被迫~~花了点时间搭建了个容器，记得点个星星。
@@ -126,6 +131,7 @@ $ service cron restart
 <details>
 <summary>20220325</summary>
 <h3>添加表格参数</h3>
+
 
 新的表格出现了早/中/晚的昨日测量数据
 现在已经加上且附带35.5-36.5的随机体温
@@ -136,6 +142,7 @@ $ service cron restart
 <summary>20220227</summary>
 <h3>紧急修复Crontab问题</h3>
 
+
 加入拓展之后并在Crontab下执行会路径发生问题，经过我的排查在当前文件夹下使用 `cp -r ./hideHeader /home/ubuntu`并赋予执行权限 `chmod -R 777 /home/ubuntu/hideHeader`即可。至于路径不统一，查看[我的博客](https://hengy1.top/article/2c7b2295.html)简单配置即可找到问题所在。
 </details>
 
@@ -143,16 +150,18 @@ $ service cron restart
 <summary>20220226</summary>
 <h3>重构发包与修改日志记录</h3>
 
+
 当初年少不懂事，写的代码自尝苦果，写的不好自己现在重新写下。
 新版发出，敬请谅解，多多指教～
 
 - 重构发包
 - 修改日志记录
-</details>
+  </details>
 
 <details>
 <summary>20220225</summary>
 <h3>修改方式以及优化部分代码</h3>
+
 
 受到小透明的启发，发现利用油猴方式是可以在不降低版本的情况下进行浏览器头部的绕过，以及发现部分代码存在可以优化空间。
 正如小透明所说，降低版本是一个不明智的决定，抱歉～
@@ -160,10 +169,11 @@ $ service cron restart
 - 添加上了绕过方式
 - 添加了Logging日志记录格式
 - 暂时修复Connection aborted
-</details>
+  </details>
 
 <details><summary>20220215</summary>
 <h3>动模块检测window.navigator修复(废弃)</h3>
+
 
 收到邮箱错误，上去Debug发现只要是自动浏览器总是错的，不可能是对的。由于issue#1680  链接：https://github.com/mozilla/geckodriver/issues/1680
 
@@ -172,7 +182,7 @@ when tests are running with webdriver enabled. **即在88.0版本以上之后gec
 
 如果我发现有像谷歌存在`execute_cdp_cmd`的方法**我会第一时间更新**，所以总的思路已经有了。
 
-``` bash
+``` bash
 $ apt remove firefox # 卸载最新版本的firefox
 $ wget https://ftp.mozilla.org/pub/firefox/releases/87.0b1/linux-x86_64/zh-CN/firefox-87.0b1.tar.bz2
 $ tar -jxvf firefox-87.0b1.tar.bz2 # 会有个firefox文件

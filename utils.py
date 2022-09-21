@@ -19,12 +19,13 @@ BG_IMG_PATH = os.path.join(CURRENT_PATH, 'bgImg')
 LOG_PATH = os.path.join(CURRENT_PATH, 'log')
 HIDE_HEADER = os.path.join(CURRENT_PATH, 'hideHeader')
 BIN_DRIVER = os.path.join(CURRENT_PATH, 'bin')
-JSON_PATH = os.path.join(CURRENT_PATH, 'demo_info.json')
+JSON_PATH = os.path.join(CURRENT_PATH, 'user_info.json')
+SETTING_PATH = os.path.join(CURRENT_PATH, 'setting.json')
 
 # --------------------- 初始化变量 ---------------------
 TOKEN_QUEUE = queue.Queue(0)
 ERR_PWD, SUCCESS, REPEAT, DEAD_LATER, FINAL_ERROR, = [], [], [], [], []
-
+Demo = 1
 
 # ---------------------仓库函数 ---------------------
 
@@ -178,3 +179,14 @@ def printErrAndDoLog(funcName, error):
     err_str = f"[X] {funcName} account error: {error}"
     print(err_str)
     logging.warning(err_str)
+
+
+def readSettings() -> dict:
+    try:
+        with open(SETTING_PATH, 'r', encoding="utf-8") as f:
+            load_dict = json.load(f)
+            printInfoAndDoLog("readSettingJson", str(load_dict))
+            return load_dict
+    except Exception as e:
+        printErrAndDoLog("readJsonInfo", e)
+        raise e
