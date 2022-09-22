@@ -45,7 +45,8 @@ class Chef:
             try:
                 printInfoAndDoLog("prepareToken", '正在获取第 {} 条 ValidateToken'.format(all_times + 1))
                 time.sleep(random.randint(2, 4))
-                TOKEN_QUEUE.put(self.getValidateToken()) if self.getValidateToken() is not None else retry_time + 1
+                validate = self.getPuzzleToken()
+                TOKEN_QUEUE.put(validate) if validate is not None else retry_time + 1
                 all_times += 1
                 self.browser.get(WxToken().getActiveUrl())
             except Exception as e:
@@ -106,6 +107,121 @@ class Chef:
             for i in range(len(targetSeq) - 1):
                 ac = ac.move_by_offset(targetSeq[i + 1] - targetSeq[i], 0)
             ac.pause(random.randint(100, 200) / 1000).release().perform()
+
+            try:
+                WebDriverWait(self.browser, 2).until(lambda d: domValidate.get_attribute('value'))
+            except TimeoutException:
+                pass
+            validate = domValidate.get_attribute('value')
+            if validate:
+                break
+        return validate
+
+    # 跟@小透明 讨论后
+    def getPuzzleToken(self):
+        self.browser.execute_script('(document.querySelector(\'#captcha .yidun .yidun_bg-img[src^="https://"]\')||{'
+                                    '}).src=null;window.initNECaptcha({element:"#captcha",'
+                                    'captchaId:"7d856ac2068b41a1b8525f3fffe92d1c",width:"320px",mode:"float"})')
+        WebDriverWait(self.browser, 3, .05).until(untilFindElement(
+            By.CSS_SELECTOR, '#captcha .yidun .yidun_bg-img[src^="https://"]')
+        )
+        domYidunImg = self.browser.find_element(By.CSS_SELECTOR, '#captcha .yidun .yidun_bg-img')
+        domYidunControl = self.browser.find_element(By.CSS_SELECTOR, '#captcha .yidun .yidun_control')
+        domValidate = self.browser.find_element(By.CSS_SELECTOR, '#captcha input.yidun_input[name="NECaptchaValidate"]')
+
+        validate = None
+        for i in range(6):
+            imgUrl = domYidunImg.get_attribute('src').replace('@2x', '').replace('@3x', '')
+            img = Image.open(io.BytesIO(requests.session().get(imgUrl).content))
+            # 将图片转换到 HSV 颜色空间并统一 V 通道后，再根据 RGB 通道判断图块之间的 10 条分界线是否为相邻图案
+            # 后面会根据此优化算法
+            img = img.convert('HSV')
+            for x in range(img.width):
+                for y in range(img.height):
+                    p = list(img.getpixel((x, y)))
+                    p[2] = 255
+                    img.putpixel((x, y), tuple(p))
+            borderH = [False for _ in range(4)]
+            borderV = [False for _ in range(6)]
+            img = img.convert('RGB')
+
+            for index, (rangeYA, rangeYB, rangeX) in enumerate((
+                    (range(80 - 4, 80), range(80, 80 + 4), range(0, 80)),
+                    (range(80 - 4, 80), range(80, 80 + 4), range(80, 160)),
+                    (range(80 - 4, 80), range(80, 80 + 4), range(160, 240)),
+                    (range(80 - 4, 80), range(80, 80 + 4), range(240, 320)),
+            )):
+                diffPixel = 0
+                for x in rangeX:
+                    colorSumA = [0, 0, 0]
+                    colorSumB = [0, 0, 0]
+                    for ya, yb in zip(rangeYA, rangeYB):
+                        colorA = img.getpixel((x, ya))
+                        colorB = img.getpixel((x, yb))
+                        for i in range(3):
+                            colorSumA[i] += colorA[i]
+                            colorSumB[i] += colorB[i]
+                    diffColor = 0
+                    for i in range(3):
+                        if abs(colorSumA[i] - colorSumB[i]) / 4 > 24:
+                            diffColor += 1
+                    if diffColor > 1:
+                        diffPixel += 1
+                borderH[index] = diffPixel > 20
+
+            for index, (rangeXA, rangeXB, rangeY) in enumerate((
+                    (range(80 - 4, 80), range(80, 80 + 4), range(0, 80)),
+                    (range(160 - 4, 160), range(160, 240 + 4), range(0, 80)),
+                    (range(240 - 4, 240), range(240, 240 + 4), range(0, 80)),
+                    (range(80 - 4, 80), range(80, 80 + 4), range(80, 160)),
+                    (range(160 - 4, 160), range(160, 240 + 4), range(80, 160)),
+                    (range(240 - 4, 240), range(240, 240 + 4), range(80, 160)),
+            )):
+                diffPixel = 0
+                for y in rangeY:
+                    colorSumA = [0, 0, 0]
+                    colorSumB = [0, 0, 0]
+                    for xa, xb in zip(rangeXA, rangeXB):
+                        colorA = img.getpixel((xa, y))
+                        colorB = img.getpixel((xb, y))
+                        for i in range(3):
+                            colorSumA[i] += colorA[i]
+                            colorSumB[i] += colorB[i]
+                    diffColor = 0
+                    for i in range(3):
+                        if abs(colorSumA[i] - colorSumB[i]) / 4 > 24:
+                            diffColor += 1
+                    if diffColor > 1:
+                        diffPixel += 1
+                borderV[index] = diffPixel > 20
+
+            blocks = [
+                (0, (borderH[0], borderV[0])),
+                (1, (borderH[1], borderV[0], borderV[1])),
+                (2, (borderH[2], borderV[1], borderV[2])),
+                (3, (borderH[3], borderV[2])),
+                (4, (borderH[0], borderV[3])),
+                (5, (borderH[1], borderV[3], borderV[4])),
+                (6, (borderH[2], borderV[4], borderV[5])),
+                (7, (borderH[3], borderV[5])),
+            ]
+            random.shuffle(blocks)
+            blocks.sort(key=lambda e: sum(e[1]) / len(e[1]), reverse=True)
+            imgFromBlock, imgToBlock = tuple(x[0] for x in blocks[:2])
+            blockFrom = f'#captcha .yidun .yidun_bgimg .yidun_inference.yidun_inference--{imgFromBlock}'
+            blockTo = f'#captcha .yidun .yidun_bgimg .yidun_inference.yidun_inference--{imgToBlock}'
+
+            domYidunImgFromBlock = self.browser.find_element(By.CSS_SELECTOR, blockFrom)
+            domYidunImgToBlock = self.browser.find_element(By.CSS_SELECTOR, blockTo)
+            ActionChains(self.browser, 20).move_to_element(domYidunControl).pause(.5).perform()
+            moveOffsetX = (domYidunImgToBlock.rect['x'] + random.randint(0, round(domYidunImgToBlock.rect['width']))) - \
+                          (domYidunImgFromBlock.rect['x'] + random.randint(0,
+                                                                           round(domYidunImgFromBlock.rect['width'])))
+            moveOffsetY = (domYidunImgToBlock.rect['y'] + random.randint(0, round(domYidunImgToBlock.rect['height']))) - \
+                          (domYidunImgFromBlock.rect['y'] + random.randint(0,
+                                                                           round(domYidunImgFromBlock.rect['height'])))
+            ActionChains(self.browser, round(50 + .5 * (moveOffsetX ** 2 + moveOffsetY ** 2) ** .5)). \
+                drag_and_drop_by_offset(domYidunImgFromBlock, moveOffsetX, moveOffsetY).perform()
 
             try:
                 WebDriverWait(self.browser, 2).until(lambda d: domValidate.get_attribute('value'))
