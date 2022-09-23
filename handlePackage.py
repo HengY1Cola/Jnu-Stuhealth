@@ -67,7 +67,7 @@ class Consumer:
             )
         )
         jar = requests.cookies.RequestsCookieJar()
-        jar.set("JNU_AUTH_VERIFY_COOKIE", WxToken().getToken())
+        jar.set("JNU_AUTH_VERIFY_TOKEN", WxToken().getToken())
         self.session.cookies.update(jar)
         self.jnu_id = self.getJnuId(unique_token)
         if self.jnu_id == '':

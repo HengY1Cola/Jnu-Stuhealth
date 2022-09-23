@@ -12,9 +12,9 @@ class WxToken:
         try:
             req = self.session.get("https://stuhealth.jnu.edu.cn")
             if req.status_code == 200:
-                if len(req.history) != 2:
+                if len(req.history) != 1:  # 现在修改为1次
                     raise Exception("打卡网站重定向逻辑错误")
-                first_re = req.history[1].headers
+                first_re = req.history[0].headers
                 query = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(first_re['Location']).query))
                 verify_id = query.get("verifyID", "")
                 if verify_id == "":
@@ -63,7 +63,7 @@ class WxToken:
                 token = set_cookie.get("Set-Cookie", "")
                 if token == "":
                     raise Exception("token获取失败")
-                regex = r".*?JNU_AUTH_VERIFY_COOKIE=(.*);.*?"
+                regex = r".*?JNU_AUTH_VERIFY_TOKEN=(.*?);.*?"
                 matches = re.findall(regex, token, re.MULTILINE | re.IGNORECASE)
                 if len(matches) != 1:
                     raise Exception("token 格式错误")
