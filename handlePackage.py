@@ -11,6 +11,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 import utils
 from handleWechat import WxToken
+from string import Template
 
 
 #  创建头部
@@ -19,6 +20,8 @@ def buildHeader():
         'Content-Type': 'application/json',
         'X-Forwarded-For': '.'.join(str(random.randint(0, 255)) for x in range(4)),
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko',
+        'Origin': 'https://stuhealth.jnu.edu.cn',
+        'Referer': 'https://stuhealth.jnu.edu.cn/',
     }
 
 
@@ -104,60 +107,93 @@ class Consumer:
     def checkin(self):
         info = dict()
         try:
+            # 更新接口拿到新的信息
             checkinInfo = self.session.post(
-                'https://stuhealth.jnu.edu.cn/api/user/stucheckin',
-                json.dumps({'jnuid': self.jnu_id}), headers=buildHeader()).json()
-            for item in checkinInfo['data']['checkinInfo']:
-                if item['flag']:
-                    checkinInfo = item
-                    break
-            lastCheckin = self.session.post(
-                'https://stuhealth.jnu.edu.cn/api/user/review',
-                json.dumps({'jnuid': self.jnu_id, 'id': str(checkinInfo["id"])}), headers=buildHeader()).json()['data']
+                'https://stuhealth.jnu.edu.cn/api/user/stuinfo',
+                json.dumps({'jnuid': self.jnu_id, "idType": "1"}), headers=buildHeader()).json()
+            meta = checkinInfo.get("meta", "")
+            code = meta.get("code", -1)
+            if meta == "" or code != 2001:  # 2001为定制的
+                raise Exception("获取Meta信息错误 拿到历史信息错误")
 
-            mainTable = {k: v for k, v in lastCheckin['mainTable'].items() if
-                         v != '' and not k in ['personType', 'createTime', 'del', 'id', 'other', 'passAreaC2',
-                                               'passAreaC3',
-                                               'passAreaC4', 'temperature']}
-            mainTable['declareTime'] = time.strftime('%Y-%m-%d', time.localtime())  # 当日日期
-            mainTable['temperature'] = randomTemperature()  # 当日体温
-            mainTable['way2Start'] = ''
+            # 一次麻烦后面改改部分就OK
+            mainTable = Template('{"way2Start":"","language":"cn","declareTime":"$declareTime",'
+                                 '"personNo":"$personNo","personName":"$personName","sex":"$sex",'
+                                 '"professionName":"$professionName","collegeName":"$collegeName","phoneArea":"+86",'
+                                 '"phone":"$phone","assistantName":"$assistantName","assistantNo":"$assistantNo",'
+                                 '"className":"$className","linkman":"$linkman","linkmanPhoneArea":"+86",'
+                                 '"linkmanPhone":"$linkmanPhone","personHealth":"1","temperature":"35.9",'
+                                 '"personHealth2":"0","schoolC1":"$schoolC1","schoolC2":"$schoolC2",'
+                                 '"currentArea":"$currentArea", '
+                                 '"personC4":"$personC4","personC1id":"$personC1id","personC1":"$personC1",'
+                                 '"personC2id":"$personC2id","personC2":"$personC2","personC3id":"$personC3id",'
+                                 '"personC3":"$personC3","otherC4":"$otherC4","isPass14C1":"$isPass14C1", '
+                                 '"isPass14C2":"$isPass14C2","isPass14C3":"$isPass14C3"}')
+            mainTable = mainTable.substitute(
+                declareTime=time.strftime('%Y-%m-%d', time.localtime()),
+                personNo=checkinInfo['data']['jnuId'],
+                personName=checkinInfo['data']['xm'],
+                sex=checkinInfo['data']['xbm'],
+                professionName=checkinInfo['data']['zy'],
+                collegeName=checkinInfo['data']['yxsmc'],
+                phone=checkinInfo['data']['mainTable']['phone'],
+                assistantName=checkinInfo['data']['mainTable']['assistantName'],
+                assistantNo=checkinInfo['data']['mainTable']['assistantNo'],
+                className=checkinInfo['data']['mainTable']['className'],
+                linkman=checkinInfo['data']['mainTable']['linkman'],
+                linkmanPhone=checkinInfo['data']['mainTable']['linkmanPhone'],
+                schoolC1=checkinInfo['data']['mainTable']['schoolC1'],
+                schoolC2=checkinInfo['data']['mainTable']['schoolC2'],
+                currentArea=checkinInfo['data']['mainTable']['currentArea'],
+                personC4=checkinInfo['data']['mainTable']['personC4'],
+                personC1id=checkinInfo['data']['mainTable']['personC1id'],
+                personC1=checkinInfo['data']['mainTable']['personC1'],
+                personC2id=checkinInfo['data']['mainTable']['personC2id'],
+                personC2=checkinInfo['data']['mainTable']['personC2'],
+                personC3id=checkinInfo['data']['mainTable']['personC3id'],
+                personC3=checkinInfo['data']['mainTable']['personC3'],
+                otherC4=checkinInfo['data']['mainTable']['otherC4'],
+                isPass14C1=checkinInfo['data']['mainTable']['isPass14C1'],
+                isPass14C2=checkinInfo['data']['mainTable']['isPass14C2'],
+                isPass14C3=checkinInfo['data']['mainTable']['isPass14C3'],
+            )
             info['mainTable'] = mainTable
 
-            if lastCheckin['secondTable'] is None:
-                if 'inChina' not in mainTable:
-                    mainTable['inChina'] = '1'
-                for key in ['personC1', 'personC1id', 'personC2', 'personC2id', 'personC3', 'personC3id', 'personC4']:
-                    if key not in mainTable:
-                        mainTable[key] = ''
-                if mainTable['inChina'] == '1':
-                    secondTable = {
-                        'other1': mainTable['inChina'],
-                        'other3': mainTable['personC4'],
-                        'other4': mainTable['personC1'],
-                        'other5': mainTable['personC1id'],
-                        'other6': mainTable['personC2'],
-                        'other7': mainTable['personC2id'],
-                        'other8': mainTable['personC3'],
-                        'other9': mainTable['personC3id'],
-                    }
-                else:
-                    secondTable = {
-                        'other1': mainTable['inChina'],
-                        'other2': mainTable['countryArea'],
-                        'other3': mainTable['personC4'],
-                    }
-            else:
-                secondTable = {k: v for k, v in lastCheckin['secondTable'].items() if
-                               v != '' and not k in ['mainId', 'id']}
-                secondTable['other12'] = ''
-            # 补充新的信息 => 早上/中午/晚上检查
-            secondTable['other29'] = randomTemperature()  # 早上
-            secondTable['other30'] = getYesDate()  # 早上
-            secondTable['other31'] = randomTemperature()  # 中午
-            secondTable['other32'] = getYesDate()  # 中午
-            secondTable['other33'] = randomTemperature()  # 晚上
-            secondTable['other34'] = getYesDate()  # 晚上
+            second = checkinInfo['data']['secondTable']
+            secondTable = {
+                "other20": second['other20'],
+                "other24": second['other24'],
+                "other28": second['other28'],
+                "other30": second['other30'],
+                "other32": second['other32'],
+                "other34": second['other34'],
+                "other1":  second['other1'],
+                "other3":  second['other3'],
+                "other5":  second['other5'],
+                "other4":  second['other4'],
+                "other7":  second['other7'],
+                "other6":  second['other6'],
+                "other9":  second['other9'],
+                "other8":  second['other8'],
+                "other10": second['other10'],
+                "other11": second['other11'],
+                "other12": second['other12'],
+                "other14": second['other14'],
+                "other15": second['other15'],
+                "other16": second['other16'],
+                "other17": second['other17'],
+                "other18": second['other18'],
+                "other19": second['other19'],
+                "other21": second['other21'],
+                "other22": second['other22'],
+                "other23": second['other23'],
+                "other25": second['other25'],
+                "other26": second['other26'],
+                "other27": second['other27'],
+                "other29": second['other29'],
+                "other31": second['other31'],
+                "other33": second['other33']
+            }
             info['secondTable'] = secondTable
             info['jnuid'] = self.jnu_id
             return info
@@ -180,7 +216,6 @@ class Consumer:
                 "Accept-Language": "zh-CN,zh;q=0.9",
             }
             body = dict()
-            self.data_bag['mainTable']['declareTime'] = data
             body['mainTable'] = self.data_bag['mainTable']
             body['secondTable'] = self.data_bag['secondTable']
             body['jnuid'] = self.data_bag['jnuid']

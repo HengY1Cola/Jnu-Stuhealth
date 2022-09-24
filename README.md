@@ -94,7 +94,16 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**对于新验证码有不错的成功率**
+最新描述：**小更新以及重构发包**
+
+<details>
+<summary>20220924</summary>
+<h3>小更新以及重构发包</h3>
+
+1. 换一个Cookie名称有意义码
+2. 更加仿真 从Header到发包
+</details>
+
 <details>
 <summary>20220922</summary>
 <h3>对于新验证码有不错的成功率</h3>
