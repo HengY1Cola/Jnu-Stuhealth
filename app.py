@@ -2,6 +2,7 @@ import threading
 import time
 from handleValidate import Chef
 from handlePackage import ConsumerWork
+from handleIpProxy import IpProxy
 from utils import *
 
 
@@ -18,8 +19,21 @@ if not (env == "pro" or env == "dev") or not (platform == "mac" or platform == "
 # 处理用户信息
 email_validator, user_list_info = ParseHandle().doParse()
 
+# 判断代理时候开启 建议人数都走代理 https://www.zmhttp.com/
+proxy = setting.get("proxy", {'switch': 'off'})
+switch = proxy['switch']
+if switch == "on":
+    ipList = IpProxy().GetNumProxy(len(user_list_info))
+    printInfoAndDoLog("app", f"获取代理 {len(ipList)} 条")
+    for each in ipList:
+        PROXY_QUEUE.put(each)
+else:
+    printInfoAndDoLog("app", "关闭代理模式")
+
+
 for each_info in user_list_info:
-    t = threading.Thread(target=ConsumerWork, args=(each_info, True, ))
+    one = PROXY_QUEUE.get()
+    t = threading.Thread(target=ConsumerWork, args=(each_info, True, one, ))
     t.start()
 
 producer = threading.Thread(target=Chef(user_list_info, env, platform).prepareToken)
@@ -34,7 +48,7 @@ while True:
         raise Exception("强制结束")
     if len(DEAD_LATER) != 0:
         for each_info in DEAD_LATER:
-            t = threading.Thread(target=ConsumerWork, args=(each_info, False,))
+            t = threading.Thread(target=ConsumerWork, args=(each_info, False, "",))
             t.start()
             DEAD_LATER.remove(each_info)
     if len(ERR_PWD) + len(SUCCESS) + len(REPEAT) + len(FINAL_ERROR) == len(user_list_info):

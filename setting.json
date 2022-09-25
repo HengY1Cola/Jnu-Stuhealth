@@ -1,4 +1,11 @@
 {
   "env": "pro",
-  "platform": "linux"
+  "platform": "linux",
+  "proxy": {
+    "switch": "off",
+    "ip": "",
+    "neek": "",
+    "pack": "",
+    "appkey": ""
+  }
 }

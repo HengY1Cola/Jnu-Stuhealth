@@ -94,7 +94,14 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**小更新以及重构发包**
+最新描述：**添加高匿代理选项**
+
+<details>
+<summary>20220925</summary>
+<h3>添加高匿代理选项</h3>
+
+当数量多了之后建议添加非相同IP进行处理
+</details>
 
 <details>
 <summary>20220924</summary>

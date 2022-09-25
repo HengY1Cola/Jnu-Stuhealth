@@ -45,6 +45,7 @@ class Consumer:
         self.session = None
         self.jnu_id = None
         self.data_bag = None
+        self.proxy = None
         if self.account == "" or self.password == "" or self.email == "" or not utils.EmailHandle("", "").validatePass(
                 self.email):
             utils.printErrAndDoLog("Consumer", f"{user_info_dict} init err")
@@ -53,10 +54,17 @@ class Consumer:
     def init(self) -> bool:
         return self.init_flag
 
-    def doThreadModel(self, flag: bool):
+    def doThreadModel(self, flag: bool, proxy: str):
         if not self.init():
             return
-        utils.printInfoAndDoLog("doThreadModel", f"{self.account} 开启线程")
+        if proxy != "":
+            self.proxy = {
+                "http": proxy,
+                "https": proxy
+            }
+            utils.printInfoAndDoLog("doThreadModel", f"{self.account} 开启线程 With Proxy {self.proxy}")
+        else:
+            utils.printInfoAndDoLog("doThreadModel", f"{self.account} 开启线程")
         unique_token = utils.TOKEN_QUEUE.get()  # 会进入阻塞状态
         self.session = requests.Session()
         self.session.mount(
@@ -94,10 +102,16 @@ class Consumer:
         cipher = AES.new(key, AES.MODE_CBC, key)
         password = base64.b64encode(cipher.encrypt(pad(self.password.encode(), 16))).decode()
         try:
-            jnuId = self.session.post(
-                'https://stuhealth.jnu.edu.cn/api/user/login',
-                json.dumps({'username': self.account, 'password': password,
-                            'validate': validateToken}), headers=header).json()['data']['jnuid']
+            if self.proxy is None:
+                jnuId = self.session.post(
+                    'https://stuhealth.jnu.edu.cn/api/user/login',
+                    json.dumps({'username': self.account, 'password': password,
+                                'validate': validateToken}), headers=header).json()['data']['jnuid']
+            else:
+                jnuId = self.session.post(
+                    'https://stuhealth.jnu.edu.cn/api/user/login',
+                    json.dumps({'username': self.account, 'password': password,
+                                'validate': validateToken}), headers=header, proxies=self.proxy).json()['data']['jnuid']
             return jnuId
         except Exception as e:
             utils.printErrAndDoLog("getJnuId", e)
@@ -108,9 +122,14 @@ class Consumer:
         info = dict()
         try:
             # 更新接口拿到新的信息
-            checkinInfo = self.session.post(
-                'https://stuhealth.jnu.edu.cn/api/user/stuinfo',
-                json.dumps({'jnuid': self.jnu_id, "idType": "1"}), headers=buildHeader()).json()
+            if self.proxy is None:
+                checkinInfo = self.session.post(
+                    'https://stuhealth.jnu.edu.cn/api/user/stuinfo',
+                    json.dumps({'jnuid': self.jnu_id, "idType": "1"}), headers=buildHeader()).json()
+            else:
+                checkinInfo = self.session.post(
+                    'https://stuhealth.jnu.edu.cn/api/user/stuinfo',
+                    json.dumps({'jnuid': self.jnu_id, "idType": "1"}), headers=buildHeader(), proxies=self.proxy).json()
             meta = checkinInfo.get("meta", "")
             code = meta.get("code", -1)
             if meta == "" or code != 2001:  # 2001为定制的
@@ -167,14 +186,14 @@ class Consumer:
                 "other30": second['other30'],
                 "other32": second['other32'],
                 "other34": second['other34'],
-                "other1":  second['other1'],
-                "other3":  second['other3'],
-                "other5":  second['other5'],
-                "other4":  second['other4'],
-                "other7":  second['other7'],
-                "other6":  second['other6'],
-                "other9":  second['other9'],
-                "other8":  second['other8'],
+                "other1": second['other1'],
+                "other3": second['other3'],
+                "other5": second['other5'],
+                "other4": second['other4'],
+                "other7": second['other7'],
+                "other6": second['other6'],
+                "other9": second['other9'],
+                "other8": second['other8'],
                 "other10": second['other10'],
                 "other11": second['other11'],
                 "other12": second['other12'],
@@ -211,7 +230,8 @@ class Consumer:
                 "Accept": "application/json, text/plain, */*",
                 "Origin": "https://stuhealth.jnu.edu.cn",
                 "Referer": "https://stuhealth.jnu.edu.cn/",  # 必须带这个参数，不然会报错
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                              "Chrome/92.0.4515.131 Safari/537.36",
                 "Accept-Encoding": "gzip, deflate",
                 "Accept-Language": "zh-CN,zh;q=0.9",
             }
@@ -220,7 +240,10 @@ class Consumer:
             body['secondTable'] = self.data_bag['secondTable']
             body['jnuid'] = self.data_bag['jnuid']
             body_new = json.dumps(body)
-            results = self.session.post(url, data=body_new, headers=headers).json()
+            if self.proxy is None:
+                results = self.session.post(url, data=body_new, headers=headers).json()
+            else:
+                results = self.session.post(url, data=body_new, headers=headers, proxies=self.proxy).json()
             if results['meta']['code'] == 6666:
                 utils.SUCCESS.append(self.email)
                 utils.printInfoAndDoLog("postBag", f"{self.account} 打卡成功")
@@ -238,5 +261,5 @@ class Consumer:
             utils.printErrAndDoLog("postBag", e)
 
 
-def ConsumerWork(each_info, flag):
-    Consumer(each_info).doThreadModel(flag)
+def ConsumerWork(each_info, flag, proxy):
+    Consumer(each_info).doThreadModel(flag, proxy)
