@@ -44,7 +44,11 @@ class IpProxy:
         info = r.json()
         if info['code'] != 0:
             printErrAndDoLog('GetNumProxy', f'芝麻代理获取失败, 开始准备进行登陆激活今日免费包')
-            raise Exception("芝麻代理获取失败请尽快检查")
+            try:
+                self.activeBag()
+            except Exception as e:
+                printErrAndDoLog('GetNumProxy', f'发生错误 {e}')
+                raise Exception("芝麻代理获取失败请尽快检查")
         ipUrlList = []
         for each in info['data']:
             ipUrlList.append(f'http://{each["ip"]}:{each["port"]}')
