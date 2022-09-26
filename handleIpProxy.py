@@ -11,6 +11,7 @@ class IpProxy:
         self.neek = proxy.get("neek", "")  # 在setting里面配置
         self.appkey = proxy.get("appkey", "")
         self.ip = proxy.get("ip", "")  # 这个只认服务器 走网关出来的没法判断
+        self.ret_data = ""
         if self.neek == '' or self.appkey == '' or self.ip == '':
             raise Exception("无代理配置")
 
@@ -42,9 +43,66 @@ class IpProxy:
         r = requests.get(aimUrl)
         info = r.json()
         if info['code'] != 0:
-            printErrAndDoLog('GetNumProxy', f'芝麻代理获取失败请尽快检查')
+            printErrAndDoLog('GetNumProxy', f'芝麻代理获取失败, 开始准备进行登陆激活今日免费包')
             raise Exception("芝麻代理获取失败请尽快检查")
         ipUrlList = []
         for each in info['data']:
             ipUrlList.append(f'http://{each["ip"]}:{each["port"]}')
         return ipUrlList
+
+    def activeBag(self):
+        proxy = readSettings()['proxy']
+        account = proxy.get("account", "")
+        password = proxy.get("password", "")
+        if account == "" or password == "":
+            printErrAndDoLog('activeBag', f'账号/密码为空 不进行登陆')
+            raise Exception("账号/密码为空 不进行登陆")
+        s = requests.session()
+        data = {
+            "phone": account,
+            "password": password,
+            "remember": "0"
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:104.0) Gecko/20100101 Firefox/104.0",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Origin": "https://www.zmhttp.com",
+            "Referer": "https://www.zmhttp.com/"
+        }
+        # 进行登陆
+        r = s.post("https://uwapi.http.linkudp.com/index/users/login_do", headers=headers, data=data)
+        if r.status_code == 200:
+            info = r.json()
+            self.ret_data = info.get("ret_data", "")
+            if self.ret_data == "":
+                printErrAndDoLog('activeBag', f'账号/密码错误, 无法获取ret_data')
+                raise Exception("账号/密码错误, 无法获取ret_data")
+        else:
+            printErrAndDoLog('activeBag', f'账号/密码获取错误 code {r.status_code}')
+            raise Exception(f'账号/密码获取错误 code {r.status_code}')
+        # 激活对应的链接
+        data = {
+            "geetest_challenge": "",
+            "geetest_validate": "",
+            "geetest_seccode": ""
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:104.0) Gecko/20100101 Firefox/104.0",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Origin": "https://www.zmhttp.com",
+            "Referer": "https://www.zmhttp.com/",
+            "Session-Id": self.ret_data,
+        }
+        r = s.post("https://uwapi.http.linkudp.com/index/users/get_day_free_pack", headers=headers, data=data)
+        if r.status_code == 200:
+            info = r.json()
+            msg = info.get("msg", "")
+            if msg == "ok" or msg == "今日已经领取过免费ip":
+                printInfoAndDoLog('activeBag', f'获取免费 {msg}')
+                return
+            else:
+                printErrAndDoLog('activeBag', f'获取免费激活错误 info {info}')
+                raise Exception(f'获取免费激活错误 info {info}')
+        else:
+            printErrAndDoLog('activeBag', f'获取免费激活错误 code {r.status_code}')
+            raise Exception(f'获取免费激活错误 code {r.status_code}')

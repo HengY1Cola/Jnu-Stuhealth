@@ -94,7 +94,14 @@ $ service cron restart
 
 ##  更新日志
 
-最新描述：**添加高匿代理选项**
+最新描述：**高匿代理添加自动获取当天免费包**
+
+<details>
+<summary>20220926</summary>
+<h3>高匿代理添加自动获取当天免费包</h3>
+
+当数量多了之后建议添加非相同IP进行处理
+</details>
 
 <details>
 <summary>20220925</summary>
