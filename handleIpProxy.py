@@ -1,3 +1,5 @@
+import time
+
 import requests
 
 from utils import readSettings, printInfoAndDoLog, printErrAndDoLog
@@ -45,7 +47,10 @@ class IpProxy:
         if info['code'] != 0:
             printErrAndDoLog('GetNumProxy', f'芝麻代理获取失败, 开始准备进行登陆激活今日免费包')
             try:
-                self.activeBag()
+                self.activeBag()  # 激活后重新获取一次
+                printInfoAndDoLog('GetNumProxy', "激活成功 休息2秒后进行获取高匿代理")
+                time.sleep(2)
+                return self.GetNumProxy(num)
             except Exception as e:
                 printErrAndDoLog('GetNumProxy', f'发生错误 {e}')
                 raise Exception("芝麻代理获取失败请尽快检查")
