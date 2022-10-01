@@ -8,7 +8,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from utils import *
-from handleWechat import WxToken
 
 # 已知图片的Hash方便与即将填补的图片的hash进行比对
 IMG_BG_With_HASH = tuple(
@@ -30,9 +29,18 @@ class Chef:
         BROWSER.install_addon(os.path.realpath('hideHeader'), temporary=True)
         self.browser = BROWSER
 
-    def prepareToken(self):
+    def prepareToken(self, token):
         printInfoAndDoLog("prepareToken", "即将开启浏览器准备获取ValidateToken")
-        self.browser.get(WxToken().getActiveUrl())
+        self.browser.get('https://stuhealth.jnu.edu.cn/jnu_authentication/public/error')
+        printInfoAndDoLog("prepareToken", f"即将JNU_AUTH_VERIFY_TOKEN {token} 添加")
+        self.browser.add_cookie({
+            'name': 'JNU_AUTH_VERIFY_TOKEN',
+            'value': token,
+            'path': '/',
+            'domain': '.jnu.edu.cn',
+        })
+        time.sleep(5)
+        self.browser.get('https://stuhealth.jnu.edu.cn/')
         retry_time, all_times, start = 0, 0, time.time()
         while len(ERR_PWD) + len(SUCCESS) + len(REPEAT) + len(FINAL_ERROR) != len(self.all_list):
             # TODO 临时解决问题
@@ -48,7 +56,7 @@ class Chef:
                 validate = self.getPuzzleToken()
                 TOKEN_QUEUE.put(validate) if validate is not None else retry_time + 1
                 all_times += 1
-                self.browser.get(WxToken().getActiveUrl())
+                self.browser.get('https://stuhealth.jnu.edu.cn/')
             except Exception as e:
                 printErrAndDoLog("prepareToken", e)
                 retry_time += 1

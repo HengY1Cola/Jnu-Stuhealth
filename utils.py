@@ -26,7 +26,6 @@ SETTING_PATH = os.path.join(CURRENT_PATH, 'setting.json')
 TOKEN_QUEUE = queue.Queue(0)
 PROXY_QUEUE = queue.Queue(0)
 ERR_PWD, SUCCESS, REPEAT, DEAD_LATER, FINAL_ERROR, = [], [], [], [], []
-Demo = 1
 
 
 # ---------------------仓库函数 ---------------------

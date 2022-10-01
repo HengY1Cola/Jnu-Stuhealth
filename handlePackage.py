@@ -10,7 +10,6 @@ import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 import utils
-from handleWechat import WxToken
 from string import Template
 
 
@@ -54,7 +53,7 @@ class Consumer:
     def init(self) -> bool:
         return self.init_flag
 
-    def doThreadModel(self, flag: bool, proxy: str):
+    def doThreadModel(self, flag: bool, proxy: str, token: str):
         if not self.init():
             return
         if proxy != "":
@@ -78,7 +77,8 @@ class Consumer:
             )
         )
         jar = requests.cookies.RequestsCookieJar()
-        jar.set("JNU_AUTH_VERIFY_TOKEN", WxToken().getToken())
+        utils.printInfoAndDoLog("handlePackage", f"获取到GLOBAL_TOKEN为 {token}")
+        jar.set("JNU_AUTH_VERIFY_TOKEN", token)
         self.session.cookies.update(jar)
         self.jnu_id = self.getJnuId(unique_token)
         if self.jnu_id == '':
@@ -261,5 +261,5 @@ class Consumer:
             utils.printErrAndDoLog("postBag", e)
 
 
-def ConsumerWork(each_info, flag, proxy):
-    Consumer(each_info).doThreadModel(flag, proxy)
+def ConsumerWork(each_info, flag, proxy, token):
+    Consumer(each_info).doThreadModel(flag, proxy, token)

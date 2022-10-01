@@ -2,6 +2,7 @@ import threading
 import time
 from handleValidate import Chef
 from handlePackage import ConsumerWork
+from handleToken import Token
 from handleIpProxy import IpProxy
 from utils import *
 
@@ -19,6 +20,16 @@ if not (env == "pro" or env == "dev") or not (platform == "mac" or platform == "
 # 处理用户信息
 email_validator, user_list_info = ParseHandle().doParse()
 
+# 准备拿到JNU_TOKEN
+today = date.today()
+token = Token().runMain(email_validator, 1)
+if token == "":
+    printErrAndDoLog("app", f'{str(today)} 通过微信失败')
+    raise Exception(f'{str(today)} 通过微信失败')
+else:
+    printInfoAndDoLog("app", f'{str(today)} 通过微信成功')
+    printInfoAndDoLog("app", f'获得的Token为 {token}')
+
 # 判断代理时候开启 建议人数都走代理 https://www.zmhttp.com/
 proxy = setting.get("proxy", {'switch': 'off'})
 switch = proxy['switch']
@@ -33,14 +44,13 @@ else:
 
 for each_info in user_list_info:
     one = PROXY_QUEUE.get()
-    t = threading.Thread(target=ConsumerWork, args=(each_info, True, one, ))
+    t = threading.Thread(target=ConsumerWork, args=(each_info, True, one, token))
     t.start()
 
-producer = threading.Thread(target=Chef(user_list_info, env, platform).prepareToken)
+producer = threading.Thread(target=Chef(user_list_info, env, platform).prepareToken, args=(token, ))
 producer.start()
 
 time_start = time.time()
-today = date.today()
 while True:
     now = time.time()
     if now - time_start >= (len(user_list_info) + 2) * 30:
@@ -48,7 +58,7 @@ while True:
         raise Exception("强制结束")
     if len(DEAD_LATER) != 0:
         for each_info in DEAD_LATER:
-            t = threading.Thread(target=ConsumerWork, args=(each_info, False, "",))
+            t = threading.Thread(target=ConsumerWork, args=(each_info, False, "", token))
             t.start()
             DEAD_LATER.remove(each_info)
     if len(ERR_PWD) + len(SUCCESS) + len(REPEAT) + len(FINAL_ERROR) == len(user_list_info):

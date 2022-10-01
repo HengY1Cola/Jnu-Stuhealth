@@ -44,6 +44,7 @@ class IpProxy:
                  f'&yys=0&port=1&pack={pack}&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions='
         r = requests.get(aimUrl)
         info = r.json()
+        printInfoAndDoLog("GetNumProxy", f"get info {info}")
         if info['code'] != 0:
             printErrAndDoLog('GetNumProxy', f'芝麻代理获取失败, 开始准备进行登陆激活今日免费包')
             try:

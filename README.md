@@ -1,5 +1,7 @@
 #  学生健康打卡
 
+> 目前已经支持微信但无法绕过 需要设置setting文件 有空我写一下新的姿势
+
 <img src='https://img.shields.io/badge/Version-2.0.2-green' style='float:left; width:100px'/>
 
 `Jnu-StuHealth  `模拟滑块实现打卡项目
