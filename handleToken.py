@@ -1,7 +1,10 @@
+import io
 import threading
 import time
 import urllib.parse
 
+import qrcode
+from pyzbar.pyzbar import decode
 import requests
 from utils import *
 
@@ -34,6 +37,26 @@ class Token:
             aimEmail = ParseHandle().readJsonInfo().get("auth_email")
         email_handle.doNotice("请尽快进行微信验证", [aimEmail], f'<img src="{url}"/>')
         printInfoAndDoLog("emailNotice", f'微信验证通知发送成功并开始进行轮询验证')
+        aimCode = str(url).split("/")[-1]
+        start = int(time.time())
+        while self.Token == '' and int(time.time()) - start <= 60 * 20:
+            self.Token = self.judgeState(aimCode)
+        time.sleep(1)
+        printInfoAndDoLog("emailNotice", f'轮询完成 token {self.Token} start {start} end {int(time.time())}')
+        JNU_TOKEN_QUEUE.put(self.Token)
+
+    def qrNotice(self, url):
+        printInfoAndDoLog("qrNotice", f"图片地址：{url}")
+        barcode_url = ''
+        barcodes = decode(Image.open(io.BytesIO(requests.session().get(url).content)))
+        for barcode in barcodes:
+            barcode_url = barcode.data.decode("utf-8")
+
+        qr = qrcode.QRCode()
+        qr.add_data(barcode_url)
+        qr.print_ascii(invert=True)
+        time.sleep(1)
+        printInfoAndDoLog("qrNotice", "请扫码进行验证，并开始轮询状态")
         aimCode = str(url).split("/")[-1]
         start = int(time.time())
         while self.Token == '' and int(time.time()) - start <= 60 * 20:
@@ -117,8 +140,11 @@ class Token:
         if aimUrl == "":
             printErrAndDoLog("doMission", "微信图片链接获取错误")
             raise Exception("微信图片链接获取错误")
-        printInfoAndDoLog("doMission", "准备开启线程进行邮件通知以及轮询")
-        noticeThread = threading.Thread(target=self.emailNotice(aimUrl, email_handle))
+        # printInfoAndDoLog("doMission", "准备开启线程进行邮件通知以及轮询")
+        # noticeThread = threading.Thread(target=self.emailNotice(aimUrl, email_handle))
+        # noticeThread.start()
+        printInfoAndDoLog("doMission", "准备打印微信验证码")
+        noticeThread = threading.Thread(target=self.qrNotice(aimUrl))
         noticeThread.start()
         try:
             code = JNU_TOKEN_QUEUE.get(timeout=60 * 20)  # 花费40分钟等待信号回来
@@ -145,3 +171,7 @@ class Token:
                 printErrAndDoLog("runMain", f"微信页面加载不出来 or 微信图片链接获取错误")
                 return self.runMain(email_handle, times + 1)
             return ""
+
+
+if __name__ == "__main__":
+    Token().runMain("", 1)

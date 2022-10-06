@@ -20,3 +20,5 @@ trio==0.19.0
 trio-websocket==0.9.2
 urllib3==1.26.8
 wsproto==1.0.0
+qrcode==7.3.1
+pyzbar==0.1.9

@@ -91,12 +91,20 @@ $ service cron restart
 1. 当遇到说`webp`·文件不识别的时候： `pip install --upgrade pillow`升级下就好了
 2. 当出现`state code 1`时候，在当前目录下打开`geckodriver.log`查看情况进行修复
 3. 当`root`用户无法使用，`sudo crontab -u ubuntu -e`为ubuntu用户开启定时任务
+4. 报错`Unable to find zbar shared library`时在Ubuntu下`sudo apt-get install libzbar-dev`
 
 > 其他问题请[谷歌](https://www.google.com.hk/)解决～ 代码问题请提交PR或者开Issue
 
 ##  更新日志
 
-最新描述：**高匿代理添加自动获取当天免费包**
+最新描述：**微信认证终端显示**
+
+<details>
+<summary>20221007</summary>
+<h3>微信认证终端显示</h3>
+
+在终端直接进行认证免得到邮箱下发
+</details>
 
 <details>
 <summary>20220926</summary>
