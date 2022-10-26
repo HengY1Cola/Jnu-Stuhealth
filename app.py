@@ -43,7 +43,9 @@ else:
 
 
 for each_info in user_list_info:
-    one = PROXY_QUEUE.get()
+    one = ""
+    if switch == "on":
+        one = PROXY_QUEUE.get()
     t = threading.Thread(target=ConsumerWork, args=(each_info, True, one, token))
     t.start()
 
