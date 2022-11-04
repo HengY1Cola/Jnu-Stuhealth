@@ -8,6 +8,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from utils import *
+from handleGaps import Gaps
 
 # 已知图片的Hash方便与即将填补的图片的hash进行比对
 IMG_BG_With_HASH = tuple(
@@ -55,8 +56,12 @@ class Chef:
             try:
                 printInfoAndDoLog("prepareToken", '正在获取第 {} 条 ValidateToken'.format(all_times + 1))
                 time.sleep(random.randint(2, 4))
-                validate = self.getPuzzleToken()
-                TOKEN_QUEUE.put(validate) if validate is not None else retry_time + 1
+                validate = self.getGapsToken()
+                if validate is not None:
+                    printInfoAndDoLog("prepareToken", '获取到第 {} 条 ValidateToken'.format(all_times + 1))
+                    TOKEN_QUEUE.put(validate)
+                else:
+                    retry_time += 1
                 all_times += 1
                 self.browser.get('https://stuhealth.jnu.edu.cn/')
             except Exception as e:
@@ -65,6 +70,7 @@ class Chef:
         self.browser.quit()
         printInfoAndDoLog("prepareToken", "浏览器线程退出")
 
+    # 滑动模块废弃
     def getValidateToken(self):
         WebDriverWait(self.browser, 5).until(
             untilFindElement(By.CSS_SELECTOR, '#captcha .yidun .yidun_bg-img[src^="https://"]'))
@@ -127,7 +133,7 @@ class Chef:
                 break
         return validate
 
-    # 跟@小透明 讨论后
+    # 跟@小透明 讨论后拼图模块
     def getPuzzleToken(self):
         self.browser.execute_script('(document.querySelector(\'#captcha .yidun .yidun_bg-img[src^="https://"]\')||{'
                                     '}).src=null;window.initNECaptcha({element:"#captcha",'
@@ -233,6 +239,46 @@ class Chef:
             ActionChains(self.browser, round(50 + .5 * (moveOffsetX ** 2 + moveOffsetY ** 2) ** .5)). \
                 drag_and_drop_by_offset(domYidunImgFromBlock, moveOffsetX, moveOffsetY).perform()
 
+            try:
+                WebDriverWait(self.browser, 2).until(lambda d: domValidate.get_attribute('value'))
+            except TimeoutException:
+                pass
+            validate = domValidate.get_attribute('value')
+            if validate:
+                break
+        return validate
+
+    # 采用新的遗传算法后：
+    def getGapsToken(self):
+        self.browser.execute_script('(document.querySelector(\'#captcha .yidun .yidun_bg-img[src^="https://"]\')||{'
+                                    '}).src=null;window.initNECaptcha({element:"#captcha",'
+                                    'captchaId:"7d856ac2068b41a1b8525f3fffe92d1c",width:"320px",mode:"float"})')
+        WebDriverWait(self.browser, 3, .05).until(untilFindElement(
+            By.CSS_SELECTOR, '#captcha .yidun .yidun_bg-img[src^="https://"]')
+        )
+        domYidunImg = self.browser.find_element(By.CSS_SELECTOR, '#captcha .yidun .yidun_bg-img')
+        domYidunControl = self.browser.find_element(By.CSS_SELECTOR, '#captcha .yidun .yidun_control')
+        domValidate = self.browser.find_element(By.CSS_SELECTOR, '#captcha input.yidun_input[name="NECaptchaValidate"]')
+
+        validate = None
+        for i in range(6):
+            imgUrl = domYidunImg.get_attribute('src').replace('@3x', '')
+            final = Gaps(imgUrl).run()
+            if not final:
+                continue
+            blockFrom = f'#captcha .yidun .yidun_bgimg .yidun_inference.yidun_inference--{final[0]}'
+            blockTo = f'#captcha .yidun .yidun_bgimg .yidun_inference.yidun_inference--{final[1]}'
+            domYidunImgFromBlock = self.browser.find_element(By.CSS_SELECTOR, blockFrom)
+            domYidunImgToBlock = self.browser.find_element(By.CSS_SELECTOR, blockTo)
+            ActionChains(self.browser, 20).move_to_element(domYidunControl).pause(.5).perform()
+            moveOffsetX = (domYidunImgToBlock.rect['x'] + random.randint(0, round(domYidunImgToBlock.rect['width']))) - \
+                          (domYidunImgFromBlock.rect['x'] + random.randint(0,
+                                                                           round(domYidunImgFromBlock.rect['width'])))
+            moveOffsetY = (domYidunImgToBlock.rect['y'] + random.randint(0, round(domYidunImgToBlock.rect['height']))) - \
+                          (domYidunImgFromBlock.rect['y'] + random.randint(0,
+                                                                           round(domYidunImgFromBlock.rect['height'])))
+            ActionChains(self.browser, round(50 + .5 * (moveOffsetX ** 2 + moveOffsetY ** 2) ** .5)). \
+                drag_and_drop_by_offset(domYidunImgFromBlock, moveOffsetX, moveOffsetY).perform()
             try:
                 WebDriverWait(self.browser, 2).until(lambda d: domValidate.get_attribute('value'))
             except TimeoutException:
