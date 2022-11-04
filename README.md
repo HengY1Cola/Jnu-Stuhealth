@@ -1,8 +1,6 @@
 #  学生健康打卡
 
-> 目前已经支持微信但无法绕过 需要设置setting文件 有空我写一下新的姿势
-
-<img src='https://img.shields.io/badge/Version-2.0.2-green' style='float:left; width:100px'/>
+<img src='https://img.shields.io/badge/Version-2.0.3-green' style='float:left; width:100px'/>
 
 `Jnu-StuHealth  `模拟滑块实现打卡项目
 
@@ -12,7 +10,7 @@
 
 因为验证码具有短暂的时效性，后改用了**生产者与消费者**模式，**即产即消**！
 
-最新 **已经支持绕过微信认证，并对新的验证码有不错的成功率**
+最近**对拼图有不错的识别**，不建议个人使用，因为得每天上去下操作了
 
 ##  责任说明 😊
 
@@ -51,6 +49,8 @@ $ apt install firefox
 # 切回去用户
 $ su ubuntu
 $ vim user_info.json # 编辑用户信息
+# env: dev or pro; platform: mac or windows or linux
+$ vim setting.json # 编辑配置选项(不开代理proxy不需要填写)
 $ python app.py
 ```
 
@@ -67,6 +67,9 @@ $ python app.py
 ├── setting.json # 用于方便调试的以及后面的拓展
 ├── handlePackage.py # 处理发包
 ├── handleValidate.py # 处理验证码
+├── handleWechat.py # 处理微信登陆
+├── handleToken.py # 处理微信Token
+├── handleProxy.py # 处理高匿代理
 │
 ├── requirements.txt # 依赖文件
 └── utils.py  # 仓库

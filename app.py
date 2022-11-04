@@ -14,7 +14,7 @@ print('Source on GitHub: https://github.com/HengY1Sky/Jnu-Stuhealth\nAuthor: Hen
 setting = readSettings()
 env = setting.get("env", "linux")
 platform = setting.get("platform", "pro")
-if not (env == "pro" or env == "dev") or not (platform == "mac" or platform == "linux"):
+if not (env == "pro" or env == "dev") or not (platform == "mac" or platform == "linux" or platform == "windows"):
     raise Exception("No match ENV or PLATFORM. ENV: pro or dev | PLATFORM: mac or linux")
 
 # 处理用户信息

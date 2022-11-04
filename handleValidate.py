@@ -23,6 +23,8 @@ class Chef:
         profile = webdriver.FirefoxProfile()
         if platform == 'mac':
             executable_path = os.path.join(BIN_DRIVER, 'geckodriver_mac')
+        elif platform == "windows":
+            executable_path = os.path.join(BIN_DRIVER, 'geckodriver_windows.exe')
         else:
             executable_path = os.path.join(BIN_DRIVER, 'geckodriver_linux')
         BROWSER = webdriver.Firefox(executable_path=executable_path, options=options, firefox_profile=profile)
