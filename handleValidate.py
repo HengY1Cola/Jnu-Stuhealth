@@ -262,9 +262,15 @@ class Chef:
 
         validate = None
         for i in range(6):
-            imgUrl = domYidunImg.get_attribute('src').replace('@3x', '')
+            imgUrl = domYidunImg.get_attribute('src').replace('@2x', '').replace('@3x', '')
             final = Gaps(imgUrl).run()
             if not final:
+                printInfoAndDoLog("prepareToken", f"本次识别失败 准备刷新重试")
+                ActionChains(self.browser, 20).move_to_element(domYidunControl).pause(.5).perform()
+                python_button = self.browser.find_element(By.CSS_SELECTOR, "#captcha .yidun .yidun_top "
+                                                                           ".yidun_top__right .yidun_refresh")
+                python_button.click()
+                time.sleep(1)
                 continue
             blockFrom = f'#captcha .yidun .yidun_bgimg .yidun_inference.yidun_inference--{final[0]}'
             blockTo = f'#captcha .yidun .yidun_bgimg .yidun_inference.yidun_inference--{final[1]}'
@@ -287,3 +293,8 @@ class Chef:
             if validate:
                 break
         return validate
+
+
+if __name__ == "__main__":
+    token = "T6JYdHvsmVC06G6BV9e34gbiZZfKhY2tYfwkx6ntbEKTFWOhO5jnor+kzaCHwjAB"
+    Chef([1, 2], "dev", "mac").prepareToken(token)

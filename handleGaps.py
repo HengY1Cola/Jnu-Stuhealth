@@ -11,7 +11,7 @@ class Gaps:
         self.url = imgUrl
         self.generations = 20
         self.population = 200
-        self.piece_size = 120
+        self.piece_size = 80
 
     def getRes(self):
         resp = requests.get(self.url)
@@ -23,7 +23,7 @@ class Gaps:
         algorithm = GeneticAlgorithm(image, self.piece_size, 200, 20)
         solution = algorithm.start_evolution(False)
         end = time()
-        print("\n[*] Done in {0:.3f} s".format(end - start))
+        print("[*] Done in {0:.3f} s".format(end - start))
         solution.to_image()
         print('[*] PieceMapping = ', solution.getPieceMapping())
         return solution.getPieceMapping()
@@ -53,6 +53,6 @@ class Gaps:
 
 if __name__ == "__main__":
     # 用于测试
-    url = "https://necaptcha.nosdn.127.net/5c0fac1ddd044630b5daaae2aac85bbc@2x.jpg"
+    url = "https://necaptcha.nosdn.127.net/5c0fac1ddd044630b5daaae2aac85bbc.jpg"
     final = Gaps(url).run()
     print(final)
