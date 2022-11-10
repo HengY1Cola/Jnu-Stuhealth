@@ -10,7 +10,7 @@ class Gaps:
     def __init__(self, imgUrl):
         self.url = imgUrl
         self.generations = 20
-        self.population = 200
+        self.population = 600
         self.piece_size = 80
 
     def getRes(self):
