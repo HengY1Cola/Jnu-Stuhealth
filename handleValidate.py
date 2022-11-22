@@ -46,7 +46,6 @@ class Chef:
         self.browser.get('https://stuhealth.jnu.edu.cn/')
         retry_time, all_times, start = 0, 0, time.time()
         while len(ERR_PWD) + len(SUCCESS) + len(REPEAT) + len(FINAL_ERROR) != len(self.all_list):
-            # TODO 临时解决问题
             if time.time() - start >= (len(self.all_list) + 2) * 30:
                 printErrAndDoLog("prepareToken", "子进程浏览器强制退出")
                 raise Exception("强制结束")
@@ -56,7 +55,7 @@ class Chef:
             try:
                 printInfoAndDoLog("prepareToken", '正在获取第 {} 条 ValidateToken'.format(all_times + 1))
                 time.sleep(random.randint(2, 4))
-                validate = self.getGapsToken()
+                validate = self.getValidateToken() # 切换回滑动模块
                 if validate is not None:
                     printInfoAndDoLog("prepareToken", '获取到第 {} 条 ValidateToken'.format(all_times + 1))
                     TOKEN_QUEUE.put(validate)
@@ -70,7 +69,7 @@ class Chef:
         self.browser.quit()
         printInfoAndDoLog("prepareToken", "浏览器线程退出")
 
-    # 滑动模块废弃
+    # 滑动模块废弃 2022-11-23 恢复
     def getValidateToken(self):
         WebDriverWait(self.browser, 5).until(
             untilFindElement(By.CSS_SELECTOR, '#captcha .yidun .yidun_bg-img[src^="https://"]'))
@@ -80,7 +79,7 @@ class Chef:
         domValidate = self.browser.find_element(By.CSS_SELECTOR, '#captcha input.yidun_input[name="NECaptchaValidate"]')
 
         validate = None
-        for i in range(3):
+        for i in range(5):
             img = Image.open(
                 io.BytesIO(
                     requests.get(domYidunImg.get_attribute('src').replace('@2x', '').replace('@3x', '')).content))
